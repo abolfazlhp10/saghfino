@@ -23,9 +23,9 @@ class AuthController extends Controller
         $user = '';
 
 
-        if (!$user) {
-            return response()->json(['error' => 'این شماره موبایل در سیستم وحود ندارد'], 422);
-        }
+        // if (!$user) {
+        //     return response()->json(['error' => 'این شماره موبایل در سیستم وحود ندارد'], 422);
+        // }
 
         // using farazsms for sending otp
 
