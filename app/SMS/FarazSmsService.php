@@ -37,7 +37,7 @@ class FarazSmsService
      * @return array Response from API
      * @throws \Exception
      */
-    public function sendPatternSms(array $to, array $inputData): JsonResponse
+    public function sendPatternSms(int $otp,array $to, array $inputData): JsonResponse
     {
         $this->validateInput($to, $inputData);
 
@@ -55,6 +55,7 @@ class FarazSmsService
                 return response()->json([
                     'success' => true,
                     'message' => 'SMS sent successfully',
+                    'code'=>$otp
                 ],200);
             }
 

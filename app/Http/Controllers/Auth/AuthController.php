@@ -31,10 +31,12 @@ class AuthController extends Controller
 
         $otp = $this->makeOtp();
 
-        $response = $this->farazSmsService->sendPatternSms([$phoneNumber],
+        $response = $this->farazSmsService->sendPatternSms( $otp ,[$phoneNumber],
             [
                 'verification-code' => $otp,
             ]);
+
+        
 
         return $response;
 
