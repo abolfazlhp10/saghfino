@@ -12,10 +12,12 @@ use Illuminate\Http\JsonResponse;
 class AuthController extends Controller
 {
     private $farazSmsService;
+    private $isTestMode;
 
     public function __construct(FarazSmsService $farazSmsService)
     {
         $this->farazSmsService = $farazSmsService;
+        $this->isTestMode = config('app.env') === 'testing' || config('app.debug');
     }
 
     public function sendOtp(PhoneNumberRequest $request): JsonResponse
@@ -29,17 +31,23 @@ class AuthController extends Controller
         //     return response()->json(['error' => 'این شماره موبایل در سیستم وحود ندارد'], 422);
         // }
 
-        // using farazsms for sending otp
-
         $otp = $this->makeOtp($phoneNumber);
+
+        if ($this->isTestMode) {
+            // In test mode, just return the OTP without actually sending SMS
+            return response()->json([
+                'success' => true,
+                'message' => 'SMS sent successfully in the test mode',
+                'code'=>$otp
+            ],200);
+        }
 
         $response = $this->farazSmsService->sendPatternSms($otp, [$phoneNumber],
             [
                 'verification-code' => $otp,
             ]);
-            
-        return $response;
 
+        return $response;
     }
 
     private function makeOtp($phoneNumber)
@@ -57,7 +65,6 @@ class AuthController extends Controller
 
     public function verifyOtp(VerifyOtpRequest $request)
     {
-
         $otp = Otp::where('phoneNumber', $request->phone_number)
             ->where('code', $request->code)
             ->where('created_time', '>', now()->subMinutes(2))
@@ -69,6 +76,5 @@ class AuthController extends Controller
         } else {
             return response()->json(['message' => 'The code is false'], 404);
         }
-
     }
 }
