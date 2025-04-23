@@ -10,3 +10,4 @@ Route::get('/user', function (Request $request) {
 
 Route::post('send-otp', [AuthController::class, 'sendOtp'])->middleware('throttle:otp');
 
+Route::post('verify-otp',[AuthController::class,'verifyOtp']);
