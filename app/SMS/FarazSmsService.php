@@ -55,7 +55,6 @@ class FarazSmsService
                 return response()->json([
                     'success' => true,
                     'message' => 'SMS sent successfully',
-                    'code'=>$otp
                 ],200);
             }
 

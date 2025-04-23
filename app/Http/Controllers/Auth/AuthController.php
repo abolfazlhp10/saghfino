@@ -7,7 +7,7 @@ use App\Http\Requests\Auth\PhoneNumberRequest;
 use App\Http\Requests\Auth\VerifyOtpRequest;
 use App\Models\Otp;
 use App\SMS\FarazSmsService;
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
 class AuthController extends Controller
 {
@@ -18,7 +18,7 @@ class AuthController extends Controller
         $this->farazSmsService = $farazSmsService;
     }
 
-    public function sendOtp(PhoneNumberRequest $request)
+    public function sendOtp(PhoneNumberRequest $request): JsonResponse
     {
         $phoneNumber = $request->phone_number;
 
@@ -37,8 +37,7 @@ class AuthController extends Controller
             [
                 'verification-code' => $otp,
             ]);
-
-        //ToDo : make this response json
+            
         return $response;
 
     }
@@ -58,7 +57,7 @@ class AuthController extends Controller
 
     public function verifyOtp(VerifyOtpRequest $request)
     {
-    
+
         $otp = Otp::where('phoneNumber', $request->phone_number)
             ->where('code', $request->code)
             ->where('created_time', '>', now()->subMinutes(2))
