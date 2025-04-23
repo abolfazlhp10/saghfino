@@ -26,5 +26,10 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinutes(2, 1)
                 ->by($request->ip());
         });
+
+        RateLimiter::for('verifyOtp',function(Request $request){
+            return Limit::perMinutes(1,5)
+                ->by($request->ip());
+        });
     }
 }
