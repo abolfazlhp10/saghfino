@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\PhoneNumberRequest;
+use App\Http\Requests\Auth\UserRegisterRequest;
 use App\Http\Requests\Auth\VerifyOtpRequest;
 use App\Models\Otp;
+use App\Models\User;
+use Spatie\Permission\Models\Role;
 use App\SMS\FarazSmsService;
 use Illuminate\Http\JsonResponse;
 
@@ -38,8 +41,8 @@ class AuthController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'SMS sent successfully in the test mode',
-                'code'=>$otp
-            ],200);
+                'code' => $otp,
+            ], 200);
         }
 
         $response = $this->farazSmsService->sendPatternSms($otp, [$phoneNumber],
@@ -76,5 +79,18 @@ class AuthController extends Controller
         } else {
             return response()->json(['message' => 'The code is false'], 404);
         }
+    }
+
+    public function register(UserRegisterRequest $request): User
+    {
+        $user = User::create([
+            'firstName' => $request->first_name,
+            'lastName' => $request->last_name,
+            'phoneNumber' => $request->phone_number,
+        ]);
+        
+        $user->assignRole($request->role);
+
+        return $user;
     }
 }
