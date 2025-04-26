@@ -8,9 +8,9 @@ use App\Http\Requests\Auth\UserRegisterRequest;
 use App\Http\Requests\Auth\VerifyOtpRequest;
 use App\Models\Otp;
 use App\Models\User;
-use Spatie\Permission\Models\Role;
 use App\SMS\FarazSmsService;
 use Illuminate\Http\JsonResponse;
+use Spatie\Permission\Models\Role;
 
 class AuthController extends Controller
 {
@@ -27,7 +27,7 @@ class AuthController extends Controller
     {
         $phoneNumber = $request->phone_number;
 
-        $user = User::where('phoneNumber',$phoneNumber)->first();
+        $user = User::where('phoneNumber', $phoneNumber)->first();
 
         if (!$user) {
             return response()->json(['error' => 'این شماره موبایل در سیستم وحود ندارد'], 422);
@@ -73,10 +73,21 @@ class AuthController extends Controller
             ->first();
 
         if ($otp) {
+
             $otp->delete();
-            return response()->json(['message' => 'The code is correct'], 200);
-            // add the user logged in info
-            // return $user;
+
+            $user = User::where('phoneNumber', $request->phone_number)->first();
+            $token = $user->createToken('user')->plainTextToken;
+
+            return response()->json([
+                'firstName' => $user->firstName,
+                'lastName' => $user->lastName,
+                'phoneNumber' => $user->phoneNumber,
+                'image'=>$user->image,
+                'role' => $user->roles->first()->name,
+                'token' => $token,
+            ], 200);
+
         } else {
             return response()->json(['message' => 'The code is false'], 404);
         }
@@ -89,7 +100,7 @@ class AuthController extends Controller
             'lastName' => $request->last_name,
             'phoneNumber' => $request->phone_number,
         ]);
-        
+
         $user->assignRole($request->role);
 
         return $user;
