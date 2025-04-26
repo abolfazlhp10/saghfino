@@ -27,12 +27,11 @@ class AuthController extends Controller
     {
         $phoneNumber = $request->phone_number;
 
-        //search for a user with this phone_number
-        $user = '';
+        $user = User::where('phoneNumber',$phoneNumber)->first();
 
-        // if (!$user) {
-        //     return response()->json(['error' => 'این شماره موبایل در سیستم وحود ندارد'], 422);
-        // }
+        if (!$user) {
+            return response()->json(['error' => 'این شماره موبایل در سیستم وحود ندارد'], 422);
+        }
 
         $otp = $this->makeOtp($phoneNumber);
 
@@ -76,6 +75,8 @@ class AuthController extends Controller
         if ($otp) {
             $otp->delete();
             return response()->json(['message' => 'The code is correct'], 200);
+            // add the user logged in info
+            // return $user;
         } else {
             return response()->json(['message' => 'The code is false'], 404);
         }
