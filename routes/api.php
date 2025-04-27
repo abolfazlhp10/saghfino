@@ -18,4 +18,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('ad/show/{ad}',[AdController::class,'show']);
 
+    Route::post('ads',[AdController::class,'index']);
+
 });

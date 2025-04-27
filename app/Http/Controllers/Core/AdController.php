@@ -10,6 +10,16 @@ use Illuminate\Support\Facades\Storage;
 
 class AdController extends Controller
 {
+
+    public function index()
+    {
+        $ads = Ad::with(['user', 'images'])
+            ->latest()
+            ->paginate(10);
+
+        return response()->json($ads, 200);
+    }
+
     public function store(CreateAdRequest $request) : JsonResponse
     {
 
@@ -45,7 +55,7 @@ class AdController extends Controller
         ], 200);
     }
 
-    public function destroy(Ad $ad) : Ad
+    public function destroy(Ad $ad) : JsonResponse
     {
         // Delete the associated images from storage
         foreach ($ad->images as $image) {
@@ -63,12 +73,12 @@ class AdController extends Controller
         // Now delete the ad itself
         $ad->delete();
 
-        // Optionally, return a response
+        // Return success response
         return response()->json(['message' => 'Ad and associated images deleted successfully'], 200);
     }
 
-    public function show(Ad $ad) : Ad
+    public function show(Ad $ad) : JsonResponse
     {
-        return $ad;
+        return response()->json($ad->load(['user', 'images']), 200);
     }
 }
