@@ -5,11 +5,12 @@ namespace App\Http\Controllers\Core;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Core\CreateAdRequest;
 use App\Models\Ad;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
 
 class AdController extends Controller
 {
-    public function store(CreateAdRequest $request)
+    public function store(CreateAdRequest $request) : JsonResponse
     {
 
 
@@ -44,7 +45,7 @@ class AdController extends Controller
         ], 200);
     }
 
-    public function destroy(Ad $ad)
+    public function destroy(Ad $ad) : Ad
     {
         // Delete the associated images from storage
         foreach ($ad->images as $image) {
@@ -64,5 +65,10 @@ class AdController extends Controller
 
         // Optionally, return a response
         return response()->json(['message' => 'Ad and associated images deleted successfully'], 200);
+    }
+
+    public function show(Ad $ad) : Ad
+    {
+        return $ad;
     }
 }
