@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Core;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Core\CreateAdRequest;
 use App\Models\Ad;
+use Illuminate\Support\Facades\Storage;
 
 class AdController extends Controller
 {
     public function store(CreateAdRequest $request)
     {
+
 
         $ad = Ad::create([
             'user_id' => $request->user_id, // The ID of the user creating the ad
@@ -40,7 +42,27 @@ class AdController extends Controller
         return response()->json([
             $ad,
         ], 200);
-
     }
 
+    public function destroy(Ad $ad)
+    {
+        // Delete the associated images from storage
+        foreach ($ad->images as $image) {
+            // Add back the 'public/' prefix for storage operations
+            $fullPath = 'public/' . $image->path;
+            // Check if the image exists in storage and delete it
+            if (Storage::exists($fullPath)) {
+                Storage::delete($fullPath);
+            }
+        }
+
+        // Delete the images from the database
+        $ad->images()->delete();
+
+        // Now delete the ad itself
+        $ad->delete();
+
+        // Optionally, return a response
+        return response()->json(['message' => 'Ad and associated images deleted successfully'], 200);
+    }
 }
