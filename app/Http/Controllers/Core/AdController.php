@@ -44,7 +44,7 @@ class AdController extends Controller
             $ad->images()->createMany(
                 collect($request->file('images'))->map(function ($image) {
                     return [
-                        'path' => str_replace('public/', '', $image->store('public/ads/images')),
+                        'path' => $image->store('/ads/images'),
                     ];
                 })->toArray()
             );
@@ -60,7 +60,7 @@ class AdController extends Controller
         // Delete the associated images from storage
         foreach ($ad->images as $image) {
             // Add back the 'public/' prefix for storage operations
-            $fullPath = 'public/' . $image->path;
+            $fullPath = $image->path;
             // Check if the image exists in storage and delete it
             if (Storage::exists($fullPath)) {
                 Storage::delete($fullPath);
