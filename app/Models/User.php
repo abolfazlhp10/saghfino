@@ -31,4 +31,9 @@ class User extends Authenticatable
         return $this->hasMany(Ad::class);
     }
 
+    public function savedAds()
+    {
+        return $this->belongsToMany(Ad::class, 'user_ad', 'user_id', 'ad_id')->withTimestamps();
+    }
+
 }

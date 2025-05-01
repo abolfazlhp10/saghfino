@@ -30,4 +30,9 @@ class Ad extends Model
     {
         return $this->hasMany(Image::class);
     }
+
+    public function savedByUsers()
+    {
+        return $this->belongsToMany(User::class, 'user_ad', 'ad_id', 'user_id');
+    }
 }
