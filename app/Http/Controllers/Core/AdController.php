@@ -83,7 +83,7 @@ class AdController extends Controller
         return response()->json($ad->load(['user', 'images']), 200);
     }
 
-    public function saveAds($adId) : JsonResponse
+    public function saveAds($adId): JsonResponse
     {
 
         $ad = Ad::findOrFail($adId);
@@ -96,21 +96,33 @@ class AdController extends Controller
 
     }
 
-    public function unsaveAd($adId) : JsonResponse
+    public function unsaveAd($adId): JsonResponse
     {
-        $ad=Ad::findOrFail($adId);
+        $ad = Ad::findOrFail($adId);
 
-        $user=Auth::user();
+        $user = Auth::user();
 
         $user->savedAds()->detach($ad);
 
-        return response()->json(['message'=>'ad detached successfully!'],200);
+        return response()->json(['message' => 'ad detached successfully!'], 200);
     }
 
-    public function showSavedAds() : JsonResponse
+    public function showSavedAds(): JsonResponse
     {
-        $user=Auth::user();
+        $user = Auth::user();
 
-        return $user->savedAds;
+        $savedAds = $user->savedAds()->get(); 
+
+        return response()->json($savedAds);
+    }
+
+    public function deleteAllSavedAds(): JsonResponse
+    {
+        $user = Auth::user();
+
+        $user->savedAds()->detach();
+
+        return response()->json(['message' => 'All saved ads have been removed.'], 200);
+
     }
 }

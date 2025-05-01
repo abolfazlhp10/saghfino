@@ -19,4 +19,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('ads/saved-ads',[AdController::class,'showSavedAds']);
 
+    Route::delete('ads/saved-ads',[AdController::class,'deleteAllSavedAds']);
+
 });
