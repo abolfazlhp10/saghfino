@@ -92,7 +92,18 @@ class AdController extends Controller
 
         $user->savedAds()->attach($ad);
 
-        return response()->json(['message' => 'Ad saved successfully!'], 201);
+        return response()->json(['message' => 'Ad saved successfully!'], 200);
 
+    }
+
+    public function unsaveAd($adId)
+    {
+        $ad=Ad::findOrFail($adId);
+
+        $user=Auth::user();
+
+        $user->savedAds()->detach($ad);
+
+        return response()->json(['message'=>'ad detached successfully!'],200);
     }
 }
