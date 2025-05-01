@@ -125,4 +125,14 @@ class AdController extends Controller
         return response()->json(['message' => 'All saved ads have been removed.'], 200);
 
     }
+
+    public function showMyAds(): JsonResponse
+    {
+        $user=Auth::user();
+
+        $ads=$user->ads()->get();
+
+        return response()->json($ads,200);
+
+    }
 }
