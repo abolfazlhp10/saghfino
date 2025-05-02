@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('ads', function (Blueprint $table) {
-            $table->enum('transaction_type',['rent','sell','mortgage'])->after('parking');
+            $table->enum('transaction_type',['rent','sell'])->after('parking');
             $table->enum('property_type',['residential','commercial'])->after('parking');
         });
     }
