@@ -20,7 +20,10 @@ class Ad extends Model
         'elevator',
         'parking',
         'transaction_type',
-        'property_type'
+        'property_type',
+        'sell_price',
+        'rent_price',
+        'mortgage_price'
     ];
 
     public function user()
