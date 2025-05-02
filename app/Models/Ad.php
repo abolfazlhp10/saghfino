@@ -19,6 +19,8 @@ class Ad extends Model
         'type_of_wc',
         'elevator',
         'parking',
+        'transaction_type',
+        'property_type'
     ];
 
     public function user()
