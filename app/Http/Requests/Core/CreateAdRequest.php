@@ -35,7 +35,7 @@ class CreateAdRequest extends FormRequest
             'elevator' => 'required|boolean',
             'parking' => 'required|boolean',
             'transaction_type' => 'required|in:sell,rent,mortgage',
-            'property_type' => 'required|in:apartment,villa,office,store,land',
+            'property_type' => 'required|in:residential,commercial',
             'sell_price' => 'nullable|integer|min:0',
             'rent_price' => 'nullable|integer|min:0',
             'mortgage_price' => 'nullable|integer|min:0',

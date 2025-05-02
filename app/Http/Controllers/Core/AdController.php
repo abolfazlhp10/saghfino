@@ -7,8 +7,8 @@ use App\Models\Ad;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class AdController extends Controller
 {
@@ -142,45 +142,64 @@ class AdController extends Controller
     }
 
     public function deleteAllMyAds(): JsonResponse
-{
-    // Start a transaction to ensure atomicity
-    DB::beginTransaction();
+    {
+        // Start a transaction to ensure atomicity
+        DB::beginTransaction();
 
-    try {
-        $user = Auth::user();
+        try {
+            $user = Auth::user();
 
-        // Process ads in chunks to reduce memory usage
-        $user->ads()->with('images')->chunk(100, function ($ads) {
-            foreach ($ads as $ad) {
-                // Delete each ad's images from storage and database
-                foreach ($ad->images as $image) {
-                    if (Storage::exists($image->path)) {
-                        Storage::delete($image->path);
+            // Process ads in chunks to reduce memory usage
+            $user->ads()->with('images')->chunk(100, function ($ads) {
+                foreach ($ads as $ad) {
+                    // Delete each ad's images from storage and database
+                    foreach ($ad->images as $image) {
+                        if (Storage::exists($image->path)) {
+                            Storage::delete($image->path);
+                        }
                     }
+
+                    // Delete the images from database
+                    $ad->images()->delete();
                 }
-                
-                // Delete the images from database
-                $ad->images()->delete();
+
+                // After processing images, delete the ads
+                $ads->each->delete();
+            });
+
+            // Commit the transaction
+            DB::commit();
+
+            return response()->json([
+                'message' => 'تمامی آگهی‌ها و تصاویر مربوطه با موفقیت حذف شدند',
+            ], 200);
+        } catch (\Exception $e) {
+            // Rollback in case of any failure
+            DB::rollBack();
+
+            return response()->json([
+                'error'   => 'خطا در حذف آگهی‌ها و تصاویر',
+                'details' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function deleteMyAdsById(Ad $ad)
+    {
+
+        foreach ($ad->images as $image) {
+
+            if (Storage::exists($image->path)) {
+                Storage::delete($image->path);
             }
 
-            // After processing images, delete the ads
-            $ads->each->delete();
-        });
+        }
 
-        // Commit the transaction
-        DB::commit();
+        $ad->images()->delete();
 
-        return response()->json([
-            'message' => 'تمامی آگهی‌ها و تصاویر مربوطه با موفقیت حذف شدند',
-        ], 200);
-    } catch (\Exception $e) {
-        // Rollback in case of any failure
-        DB::rollBack();
+        $ad->delete();
 
-        return response()->json([
-            'error' => 'خطا در حذف آگهی‌ها و تصاویر',
-            'details' => $e->getMessage(),
-        ], 500);
+        return response()->json(['message' => 'the ad deleted successfully!'], 200);
+
     }
-}
 }

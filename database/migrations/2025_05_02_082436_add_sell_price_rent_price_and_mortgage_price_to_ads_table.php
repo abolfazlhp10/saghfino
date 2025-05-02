@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('ads', function (Blueprint $table) {
-            $table->integer('sell_price')->nullable()->after('property_type');
-            $table->integer('rent_price')->nullable()->after('property_type');
-            $table->integer('mortgage_price')->nullable()->after('property_type');
+            $table->bigInteger('sell_price')->nullable()->after('property_type');
+            $table->bigInteger('rent_price')->nullable()->after('property_type');
+            $table->bigInteger('mortgage_price')->nullable()->after('property_type');
         });
     }
 

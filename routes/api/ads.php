@@ -25,4 +25,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::delete('my-ads',[AdController::class,'deleteAllMyAds']);
 
+    Route::delete('my-ads/{ad}',[AdController::class,'deleteMyAdsById']);
+
 });
