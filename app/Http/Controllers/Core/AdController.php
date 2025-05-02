@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\Core;
 
 use App\Http\Controllers\Controller;
@@ -9,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class AdController extends Controller
 {
@@ -25,23 +25,23 @@ class AdController extends Controller
     public function store(CreateAdRequest $request): JsonResponse
     {
         $ad = Ad::create([
-            'user_id' => $request->user_id,
-            'title' => $request->title,
-            'description' => $request->description,
-            'address' => $request->address,
-            'area' => $request->area,
-            'floor' => $request->floor,
+            'user_id'          => $request->user_id,
+            'title'            => $request->title,
+            'description'      => $request->description,
+            'address'          => $request->address,
+            'area'             => $request->area,
+            'floor'            => $request->floor,
             'number_of_floors' => $request->number_of_floors,
-            'rooms' => $request->rooms,
-            'city' => $request->city,
-            'type_of_wc' => $request->type_of_wc,
-            'elevator' => $request->elevator,
-            'parking' => $request->parking,
+            'rooms'            => $request->rooms,
+            'city'             => $request->city,
+            'type_of_wc'       => $request->type_of_wc,
+            'elevator'         => $request->elevator,
+            'parking'          => $request->parking,
             'transaction_type' => $request->transaction_type,
-            'property_type' => $request->property_type,
-            'sell_price' => $request->sell_price,
-            'rent_price' => $request->rent_price,
-            'mortgage_price' => $request->mortgage_price,
+            'property_type'    => $request->property_type,
+            'sell_price'       => $request->sell_price,
+            'rent_price'       => $request->rent_price,
+            'mortgage_price'   => $request->mortgage_price,
         ]);
 
         // Add images to the ad
@@ -57,7 +57,7 @@ class AdController extends Controller
 
         return response()->json([
             'message' => 'آگهی با موفقیت ایجاد شد',
-            'ad' => $ad->load(['user', 'images'])
+            'ad'      => $ad->load(['user', 'images']),
         ], 201);
     }
 
@@ -116,7 +116,7 @@ class AdController extends Controller
     {
         $user = Auth::user();
 
-        $savedAds = $user->savedAds()->get(); 
+        $savedAds = $user->savedAds()->get();
 
         return response()->json($savedAds);
     }
@@ -133,11 +133,54 @@ class AdController extends Controller
 
     public function showMyAds(): JsonResponse
     {
-        $user=Auth::user();
+        $user = Auth::user();
 
-        $ads=$user->ads()->get();
+        $ads = $user->ads()->get();
 
-        return response()->json($ads,200);
+        return response()->json($ads, 200);
 
     }
+
+    public function deleteAllMyAds(): JsonResponse
+{
+    // Start a transaction to ensure atomicity
+    DB::beginTransaction();
+
+    try {
+        $user = Auth::user();
+
+        // Process ads in chunks to reduce memory usage
+        $user->ads()->with('images')->chunk(100, function ($ads) {
+            foreach ($ads as $ad) {
+                // Delete each ad's images from storage and database
+                foreach ($ad->images as $image) {
+                    if (Storage::exists($image->path)) {
+                        Storage::delete($image->path);
+                    }
+                }
+                
+                // Delete the images from database
+                $ad->images()->delete();
+            }
+
+            // After processing images, delete the ads
+            $ads->each->delete();
+        });
+
+        // Commit the transaction
+        DB::commit();
+
+        return response()->json([
+            'message' => 'تمامی آگهی‌ها و تصاویر مربوطه با موفقیت حذف شدند',
+        ], 200);
+    } catch (\Exception $e) {
+        // Rollback in case of any failure
+        DB::rollBack();
+
+        return response()->json([
+            'error' => 'خطا در حذف آگهی‌ها و تصاویر',
+            'details' => $e->getMessage(),
+        ], 500);
+    }
+}
 }
