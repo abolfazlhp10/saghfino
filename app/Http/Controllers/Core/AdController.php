@@ -24,20 +24,24 @@ class AdController extends Controller
 
     public function store(CreateAdRequest $request): JsonResponse
     {
-
         $ad = Ad::create([
-            'user_id' => $request->user_id, // The ID of the user creating the ad
+            'user_id' => $request->user_id,
             'title' => $request->title,
             'description' => $request->description,
             'address' => $request->address,
-            'area' => $request->area, // in square meters
+            'area' => $request->area,
             'floor' => $request->floor,
             'number_of_floors' => $request->number_of_floors,
             'rooms' => $request->rooms,
             'city' => $request->city,
-            'type_of_wc' => $request->type_of_wc, // Options: 'farangi', 'wc', 'both'
-            'elevator' => $request->elevator, // boolean: true or false
-            'parking' => $request->parking, // boolean: true or false
+            'type_of_wc' => $request->type_of_wc,
+            'elevator' => $request->elevator,
+            'parking' => $request->parking,
+            'transaction_type' => $request->transaction_type,
+            'property_type' => $request->property_type,
+            'sell_price' => $request->sell_price,
+            'rent_price' => $request->rent_price,
+            'mortgage_price' => $request->mortgage_price,
         ]);
 
         // Add images to the ad
@@ -52,8 +56,9 @@ class AdController extends Controller
         }
 
         return response()->json([
-            $ad,
-        ], 200);
+            'message' => 'آگهی با موفقیت ایجاد شد',
+            'ad' => $ad->load(['user', 'images'])
+        ], 201);
     }
 
     public function destroy(Ad $ad): JsonResponse
