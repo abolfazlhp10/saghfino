@@ -7,6 +7,7 @@ use App\Models\Ad;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Storage;
+use App\Models\User;
 
 class AdService
 {
@@ -59,6 +60,12 @@ class AdService
     }
 
 
+    /**
+     * Delete an ad and its associated images
+     *
+     * @param Ad $ad
+     * @return void
+     */
     public function deleteAd(Ad $ad)
     {
         foreach ($ad->images as $image) {
@@ -69,5 +76,18 @@ class AdService
         $ad->images()->delete();
 
         $ad->delete();
+    }
+
+
+    /**
+     * Save an ad for a user
+     *
+     * @param Ad $ad
+     * @param User $user
+     * @return void
+     */
+    public function saveAdForUser(Ad $ad, User $user): void
+    {
+        $user->savedAds()->attach($ad);
     }
 }

@@ -111,16 +111,23 @@ class AdController extends Controller
         return response()->json($ad->load(['user', 'images']), 200);
     }
 
-    public function saveAds($adId): JsonResponse
+    public function saveAd(Ad $ad): JsonResponse
     {
 
-        $ad = Ad::findOrFail($adId);
+        try {
 
-        $user = Auth::user();
+            $user = Auth::user();
 
-        $user->savedAds()->attach($ad);
+            $this->adService->saveAdForUser($ad, $user);
 
-        return response()->json(['message' => 'Ad saved successfully!'], 200);
+            return response()->json(['message' => 'آگهی با موفقیت ذخیره شد'], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'خطا در ذخیره آگهی',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function unsaveAd($adId): JsonResponse

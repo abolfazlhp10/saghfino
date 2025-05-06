@@ -17,7 +17,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('ad/show/{ad}', [AdController::class, 'show']);
 
-    Route::post('ads/{ad}/save',[AdController::class,'saveAds']);
+    Route::post('ads/{ad}/save',[AdController::class,'saveAd']);
 
     Route::delete('ads/{ad}/unsave',[AdController::class,'unsaveAd']);
 
