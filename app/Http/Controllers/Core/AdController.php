@@ -72,7 +72,7 @@ class AdController extends Controller
             ], 500);
         }
     }
-    
+
     /**
      * Remove the specified ad
      *
@@ -100,6 +100,12 @@ class AdController extends Controller
         }
     }
 
+    /**
+     * Display the specified ad
+     *
+     * @param Ad $ad
+     * @return JsonResponse
+     */
     public function show(Ad $ad): JsonResponse
     {
         return response()->json($ad->load(['user', 'images']), 200);
