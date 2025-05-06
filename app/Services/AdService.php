@@ -90,4 +90,10 @@ class AdService
     {
         $user->savedAds()->attach($ad);
     }
+
+    public function unsaveAdForUser(Ad $ad,User $user): void
+    {
+
+        $user->savedAds()->detach($ad);
+    }
 }

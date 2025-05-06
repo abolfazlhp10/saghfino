@@ -111,6 +111,13 @@ class AdController extends Controller
         return response()->json($ad->load(['user', 'images']), 200);
     }
 
+
+    /**
+     * Save the specified ad
+     *
+     * @param Ad $ad
+     * @return JsonResponse
+     */
     public function saveAd(Ad $ad): JsonResponse
     {
 
@@ -121,7 +128,6 @@ class AdController extends Controller
             $this->adService->saveAdForUser($ad, $user);
 
             return response()->json(['message' => 'آگهی با موفقیت ذخیره شد'], 200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'خطا در ذخیره آگهی',
@@ -130,15 +136,28 @@ class AdController extends Controller
         }
     }
 
-    public function unsaveAd($adId): JsonResponse
+
+     /**
+     * Remove an ad from user's saved ads
+     *
+     * @param Ad $ad
+     * @return JsonResponse
+     */
+    public function unsaveAd(Ad $ad): JsonResponse
     {
-        $ad = Ad::findOrFail($adId);
 
-        $user = Auth::user();
+        try {
+            $user = Auth::user();
 
-        $user->savedAds()->detach($ad);
+            $this->adService->unsaveAdForUser($ad, $user);
 
-        return response()->json(['message' => 'ad detached successfully!'], 200);
+            return response()->json(['message' => 'آگهی از لیست ذخیره‌ها حذف شد'], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'خطا در حذف آگهی از لیست ذخیره‌ها',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function showSavedAds(): JsonResponse
