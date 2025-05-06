@@ -3,6 +3,12 @@
 use App\Http\Controllers\Core\AdController;
 use Illuminate\Support\Facades\Route;
 
+
+Route::get('ads', [AdController::class, 'index']);
+
+Route::get('ads/filter', [AdController::class, 'filterAds']);
+
+
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('new-advertisement', [AdController::class, 'store']);
@@ -10,8 +16,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('ad/{ad}', [AdController::class, 'destroy']);
 
     Route::get('ad/show/{ad}', [AdController::class, 'show']);
-
-    Route::get('ads', [AdController::class, 'index']);
 
     Route::post('ads/{ad}/save',[AdController::class,'saveAds']);
 
@@ -27,4 +31,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::delete('my-ads/{ad}',[AdController::class,'deleteMyAdsById']);
 
+    
 });
+

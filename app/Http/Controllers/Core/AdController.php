@@ -1,11 +1,14 @@
 <?php
+
 namespace App\Http\Controllers\Core;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Core\CreateAdRequest;
 use App\Models\Ad;
 use App\Models\User;
+use App\Services\AdService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -13,12 +16,18 @@ use Illuminate\Support\Facades\Storage;
 class AdController extends Controller
 {
 
-    public function index()
-    {
-        $ads = Ad::with(['user', 'images'])
-            ->latest()
-            ->paginate(10);
+    const DEFAULT_PAGINATION = 20;
 
+    public function __construct(private readonly AdService $adService)
+    {
+         
+    }
+
+    public function index(): JsonResponse
+    {
+
+        $ads = $this->adService->getPaginatedAds(self::DEFAULT_PAGINATION);
+        
         return response()->json($ads, 200);
     }
 
@@ -98,7 +107,6 @@ class AdController extends Controller
         $user->savedAds()->attach($ad);
 
         return response()->json(['message' => 'Ad saved successfully!'], 200);
-
     }
 
     public function unsaveAd($adId): JsonResponse
@@ -128,7 +136,6 @@ class AdController extends Controller
         $user->savedAds()->detach();
 
         return response()->json(['message' => 'All saved ads have been removed.'], 200);
-
     }
 
     public function showMyAds(): JsonResponse
@@ -138,7 +145,6 @@ class AdController extends Controller
         $ads = $user->ads()->get();
 
         return response()->json($ads, 200);
-
     }
 
     public function deleteAllMyAds(): JsonResponse
@@ -184,7 +190,7 @@ class AdController extends Controller
         }
     }
 
-    public function deleteMyAdsById(Ad $ad)
+    public function deleteMyAdsById(Ad $ad): JsonResponse
     {
 
         foreach ($ad->images as $image) {
@@ -192,7 +198,6 @@ class AdController extends Controller
             if (Storage::exists($image->path)) {
                 Storage::delete($image->path);
             }
-
         }
 
         $ad->images()->delete();
@@ -200,6 +205,5 @@ class AdController extends Controller
         $ad->delete();
 
         return response()->json(['message' => 'the ad deleted successfully!'], 200);
-
     }
 }
