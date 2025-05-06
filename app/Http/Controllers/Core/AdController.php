@@ -18,56 +18,57 @@ class AdController extends Controller
 
     const DEFAULT_PAGINATION = 20;
 
-    public function __construct(private readonly AdService $adService)
-    {
-         
-    }
+    public function __construct(private readonly AdService $adService) {}
+    
 
+    /**
+     * Display a paginated list of ads
+     *
+     * @return JsonResponse
+     */
     public function index(): JsonResponse
     {
 
         $ads = $this->adService->getPaginatedAds(self::DEFAULT_PAGINATION);
-        
+
         return response()->json($ads, 200);
     }
 
+
+    /**
+     * Store a newly created ad
+     *
+     * @param CreateAdRequest $request
+     * @return JsonResponse
+     */
+
     public function store(CreateAdRequest $request): JsonResponse
     {
-        $ad = Ad::create([
-            'user_id'          => $request->user_id,
-            'title'            => $request->title,
-            'description'      => $request->description,
-            'address'          => $request->address,
-            'area'             => $request->area,
-            'floor'            => $request->floor,
-            'number_of_floors' => $request->number_of_floors,
-            'rooms'            => $request->rooms,
-            'city'             => $request->city,
-            'type_of_wc'       => $request->type_of_wc,
-            'elevator'         => $request->elevator,
-            'parking'          => $request->parking,
-            'transaction_type' => $request->transaction_type,
-            'property_type'    => $request->property_type,
-            'sell_price'       => $request->sell_price,
-            'rent_price'       => $request->rent_price,
-            'mortgage_price'   => $request->mortgage_price,
-        ]);
+        try {
 
-        // Add images to the ad
-        if ($request->hasFile('images')) {
-            $ad->images()->createMany(
-                collect($request->file('images'))->map(function ($image) {
-                    return [
-                        'path' => $image->store('/ads/images'),
-                    ];
-                })->toArray()
-            );
+            DB::beginTransaction();
+
+            $ad = $this->adService->createAd($request->validated());
+
+            if ($request->has('images')) {
+                $this->adService->storeAdImages($ad, $request->file('images'));
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'آگهی با موفقیت ایجاد شد',
+                'ad'      => $ad->load(['user', 'images']),
+            ], 201);
+        } catch (\Exception $th) {
+
+            DB::rollBack();
+
+            return response()->json([
+                'message' => 'خطا در ایجاد آگهی',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        return response()->json([
-            'message' => 'آگهی با موفقیت ایجاد شد',
-            'ad'      => $ad->load(['user', 'images']),
-        ], 201);
     }
 
     public function destroy(Ad $ad): JsonResponse

@@ -4,11 +4,14 @@ namespace App\Services;
 
 use Illuminate\Http\JsonResponse;
 use App\Models\Ad;
+use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 
 class AdService
 {
+
+    private const IMAGE_SAVE_PATH = 'ads/images/';
 
     /**
      * Get paginated ads
@@ -16,7 +19,6 @@ class AdService
      * @param int $perPage
      * @return LengthAwarePaginator
      */
-
     public function getPaginatedAds(int $perPage): LengthAwarePaginator
     {
         return Ad::with(['user', 'images'])
@@ -24,4 +26,35 @@ class AdService
             ->paginate($perPage);
     }
 
+
+    /**
+     * Create a new ad
+     *
+     * @param array $data
+     * @return Ad
+     */
+    public function createAd(array $data): Ad
+    {
+
+        return Ad::create($data);
+    }
+
+
+    /**
+     * Store images for an ad
+     *
+     * @param Ad $ad
+     * @param array $images
+     * @return void
+     */
+    public function storeAdImages(Ad $ad, array $images): void
+    {
+        $ad->images()->createMany(
+            collect($images)->map(function ($image) {
+                return [
+                    'path' => $image->store(self::IMAGE_SAVE_PATH),
+                ];
+            })->toArray()
+        );
+    }
 }
