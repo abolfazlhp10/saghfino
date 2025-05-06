@@ -12,14 +12,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class AdController extends Controller
 {
+    use AuthorizesRequests;
 
     const DEFAULT_PAGINATION = 20;
 
     public function __construct(private readonly AdService $adService) {}
-    
+
 
     /**
      * Display a paginated list of ads
@@ -60,7 +62,7 @@ class AdController extends Controller
                 'message' => 'آگهی با موفقیت ایجاد شد',
                 'ad'      => $ad->load(['user', 'images']),
             ], 201);
-        } catch (\Exception $th) {
+        } catch (\Exception $e) {
 
             DB::rollBack();
 
@@ -70,27 +72,32 @@ class AdController extends Controller
             ], 500);
         }
     }
-
+    
+    /**
+     * Remove the specified ad
+     *
+     * @param Ad $ad
+     * @return JsonResponse
+     */
     public function destroy(Ad $ad): JsonResponse
     {
-        // Delete the associated images from storage
-        foreach ($ad->images as $image) {
-            // Add back the 'public/' prefix for storage operations
-            $fullPath = $image->path;
-            // Check if the image exists in storage and delete it
-            if (Storage::exists($fullPath)) {
-                Storage::delete($fullPath);
-            }
+
+        try {
+
+            $this->authorize('delete', $ad);
+
+            $this->adService->deleteAd($ad);
+
+            return response()->json([
+                'message' => 'آگهی و تصاویر مربوطه با موفقیت حذف شدند',
+            ], 200);
+        } catch (\Throwable $e) {
+
+            return response()->json([
+                'message' => 'خطا در حذف آگهی',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        // Delete the images from the database
-        $ad->images()->delete();
-
-        // Now delete the ad itself
-        $ad->delete();
-
-        // Return success response
-        return response()->json(['message' => 'Ad and associated images deleted successfully'], 200);
     }
 
     public function show(Ad $ad): JsonResponse

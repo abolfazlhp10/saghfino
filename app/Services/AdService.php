@@ -6,7 +6,7 @@ use Illuminate\Http\JsonResponse;
 use App\Models\Ad;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 
 class AdService
 {
@@ -56,5 +56,18 @@ class AdService
                 ];
             })->toArray()
         );
+    }
+
+
+    public function deleteAd(Ad $ad)
+    {
+        foreach ($ad->images as $image) {
+            if (Storage::exists($image->path)) {
+                Storage::delete($image->path);
+            }
+        }
+        $ad->images()->delete();
+
+        $ad->delete();
     }
 }
