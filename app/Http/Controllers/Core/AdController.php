@@ -211,11 +211,27 @@ class AdController extends Controller
 
     public function showMyAds(): JsonResponse
     {
-        $user = $this->getAuthenticatedUser();
+        try {
 
-        $ads = $user->ads()->get();
+            $user = $this->getAuthenticatedUser();
 
-        return response()->json($ads, 200);
+            $ads = $this->adService->getMyAds($user);
+
+            if ($ads->isEmpty()) {
+                return response()->json([
+                    'message' => 'آگهی یافت نشد !',
+                ], 404);
+            }
+
+            return response()->json($ads, 200);
+
+        } catch (\Throwable $e) {
+            return response()->json([
+                'message' => 'server error !',
+                'error'   => $e->getMessage(),
+            ], 500);
+        }
+
     }
 
     public function deleteAllMyAds(): JsonResponse

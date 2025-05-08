@@ -102,4 +102,9 @@ class AdService
         return $user->savedAds()->detach();
     }
 
+    public function getMyAds(User $user):Collection
+    {
+        return $user->ads()->get();
+    }
+
 }
