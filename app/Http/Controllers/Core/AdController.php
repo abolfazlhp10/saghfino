@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Http\Requests\Core\FilterAdsRequest;
 
 class AdController extends Controller
 {
@@ -288,7 +289,7 @@ class AdController extends Controller
         return response()->json(['message' => 'آگهی و تصاویر مربوطه با موفقیت حذف شد'], 200);
     }
 
-    public function adsFilter(Request $request): JsonResponse
+    public function adsFilter(FilterAdsRequest $request): JsonResponse
     {
         $ads = Ad::query()
             ->byCity($request->city)
