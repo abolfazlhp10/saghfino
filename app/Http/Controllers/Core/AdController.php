@@ -183,11 +183,30 @@ class AdController extends Controller
 
     public function deleteAllSavedAds(): JsonResponse
     {
-        $user = $this->getAuthenticatedUser();
 
-        $user->savedAds()->detach();
+        try {
 
-        return response()->json(['message' => 'All saved ads have been removed.'], 200);
+            $user = $this->getAuthenticatedUser();
+
+            $result = $this->adService->deleteAllSavedAds($user);
+
+            if (! $result) {
+                return response()->json([
+                    'message' => 'آگهی یافت نشد !',
+                ], 404);
+            }
+
+            return response()->json(['message' => 'تمام آگهی های ذخیره شدن کاربر با موفقیت حذف گردید'], 200);
+
+        } catch (\Throwable $e) {
+
+            return response()->json([
+                'message' => 'ارور در حذف آگهی های ذخیره شده !',
+                'error'   => $e->getMessage(),
+            ], 500);
+
+        }
+
     }
 
     public function showMyAds(): JsonResponse

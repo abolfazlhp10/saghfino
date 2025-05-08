@@ -1,13 +1,12 @@
 <?php
-
 namespace App\Services;
 
-use Illuminate\Http\JsonResponse;
 use App\Models\Ad;
-use Illuminate\Http\Request;
+use App\Models\User;
+use Exception;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Storage;
-use App\Models\User;
 
 class AdService
 {
@@ -27,7 +26,6 @@ class AdService
             ->paginate($perPage);
     }
 
-
     /**
      * Create a new ad
      *
@@ -39,7 +37,6 @@ class AdService
 
         return Ad::create($data);
     }
-
 
     /**
      * Store images for an ad
@@ -59,7 +56,6 @@ class AdService
         );
     }
 
-
     /**
      * Delete an ad and its associated images
      *
@@ -78,7 +74,6 @@ class AdService
         $ad->delete();
     }
 
-
     /**
      * Save an ad for a user
      *
@@ -91,13 +86,20 @@ class AdService
         $user->savedAds()->attach($ad);
     }
 
-    public function unsaveAdForUser(Ad $ad,User $user): void
+    public function unsaveAdForUser(Ad $ad, User $user): void
     {
 
         $user->savedAds()->detach($ad);
     }
 
-    public function getSavedAds(User $user){
+    public function getSavedAds(User $user): Collection
+    {
         return $user->savedAds()->get();
     }
+
+    public function deleteAllSavedAds(User $user)
+    {
+        return $user->savedAds()->detach();
+    }
+
 }
