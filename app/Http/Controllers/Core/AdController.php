@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\Core;
 
 use App\Http\Controllers\Controller;
@@ -7,12 +6,12 @@ use App\Http\Requests\Core\CreateAdRequest;
 use App\Models\Ad;
 use App\Models\User;
 use App\Services\AdService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class AdController extends Controller
 {
@@ -20,8 +19,18 @@ class AdController extends Controller
 
     const DEFAULT_PAGINATION = 20;
 
-    public function __construct(private readonly AdService $adService) {}
+    public function __construct(private readonly AdService $adService)
+    {}
 
+    /**
+     * Get the authenticated user
+     *
+     * @return User
+     */
+    protected function getAuthenticatedUser(): User
+    {
+        return Auth::user();
+    }
 
     /**
      * Display a paginated list of ads
@@ -35,7 +44,6 @@ class AdController extends Controller
 
         return response()->json($ads, 200);
     }
-
 
     /**
      * Store a newly created ad
@@ -68,7 +76,7 @@ class AdController extends Controller
 
             return response()->json([
                 'message' => 'خطا در ایجاد آگهی',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
@@ -95,7 +103,7 @@ class AdController extends Controller
 
             return response()->json([
                 'message' => 'خطا در حذف آگهی',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
@@ -111,7 +119,6 @@ class AdController extends Controller
         return response()->json($ad->load(['user', 'images']), 200);
     }
 
-
     /**
      * Save the specified ad
      *
@@ -123,7 +130,7 @@ class AdController extends Controller
 
         try {
 
-            $user = Auth::user();
+            $user = $this->getAuthenticatedUser();
 
             $this->adService->saveAdForUser($ad, $user);
 
@@ -131,13 +138,12 @@ class AdController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'خطا در ذخیره آگهی',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
 
-
-     /**
+    /**
      * Remove an ad from user's saved ads
      *
      * @param Ad $ad
@@ -147,7 +153,7 @@ class AdController extends Controller
     {
 
         try {
-            $user = Auth::user();
+            $user = $this->getAuthenticatedUser();
 
             $this->adService->unsaveAdForUser($ad, $user);
 
@@ -155,14 +161,14 @@ class AdController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'خطا در حذف آگهی از لیست ذخیره‌ها',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
 
     public function showSavedAds(): JsonResponse
     {
-        $user = Auth::user();
+        $user = $this->getAuthenticatedUser();
 
         $savedAds = $user->savedAds()->get();
 
@@ -171,7 +177,7 @@ class AdController extends Controller
 
     public function deleteAllSavedAds(): JsonResponse
     {
-        $user = Auth::user();
+        $user = $this->getAuthenticatedUser();
 
         $user->savedAds()->detach();
 
@@ -180,7 +186,7 @@ class AdController extends Controller
 
     public function showMyAds(): JsonResponse
     {
-        $user = Auth::user();
+        $user = $this->getAuthenticatedUser();
 
         $ads = $user->ads()->get();
 
@@ -193,7 +199,7 @@ class AdController extends Controller
         DB::beginTransaction();
 
         try {
-            $user = Auth::user();
+            $user = $this->getAuthenticatedUser();
 
             // Process ads in chunks to reduce memory usage
             $user->ads()->with('images')->chunk(100, function ($ads) {
