@@ -170,9 +170,15 @@ class AdController extends Controller
     {
         $user = $this->getAuthenticatedUser();
 
-        $savedAds = $user->savedAds()->get();
+        $savedAds = $this->adService->getSavedAds($user);
 
-        return response()->json($savedAds);
+        if (count($savedAds)) {
+
+            return response()->json([$savedAds->load(['images'])], 200);
+        }
+
+        return response()->json(['message' => '!آگهی ذخیره شده ای برای این کاربر وجود ندارد'], 404);
+
     }
 
     public function deleteAllSavedAds(): JsonResponse

@@ -96,4 +96,8 @@ class AdService
 
         $user->savedAds()->detach($ad);
     }
+
+    public function getSavedAds(User $user){
+        return $user->savedAds()->get();
+    }
 }
