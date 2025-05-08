@@ -3,9 +3,9 @@ namespace App\Services;
 
 use App\Models\Ad;
 use App\Models\User;
-use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class AdService
@@ -102,9 +102,41 @@ class AdService
         return $user->savedAds()->detach();
     }
 
-    public function getMyAds(User $user):Collection
+    public function getMyAds(User $user): Collection
     {
         return $user->ads()->get();
+    }
+
+    public function deleteAllUserAds(User $user): bool
+    {
+        DB::beginTransaction();
+
+        try {
+            if (! $user->ads()->exists()) {
+                return false;
+            }
+
+            $user->ads()->with('images')->chunk(100, function ($ads) {
+                foreach ($ads as $ad) {
+                    foreach ($ad->images as $image) {
+                        if (Storage::exists($image->path)) {
+                            Storage::delete($image->path);
+                        }
+                    }
+
+                    $ad->images()->delete();
+                    $ad->delete(); // Delete each ad directly
+                }
+            });
+
+            DB::commit();
+
+            return true;
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e; // Rethrow the exception to be caught by the calling function
+        }
     }
 
 }

@@ -11,6 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class AdController extends Controller
@@ -236,45 +237,30 @@ class AdController extends Controller
 
     public function deleteAllMyAds(): JsonResponse
     {
-        // Start a transaction to ensure atomicity
-        DB::beginTransaction();
 
         try {
             $user = $this->getAuthenticatedUser();
 
-            // Process ads in chunks to reduce memory usage
-            $user->ads()->with('images')->chunk(100, function ($ads) {
-                foreach ($ads as $ad) {
-                    // Delete each ad's images from storage and database
-                    foreach ($ad->images as $image) {
-                        if (Storage::exists($image->path)) {
-                            Storage::delete($image->path);
-                        }
-                    }
+            $result = $this->adService->deleteAllUserAds($user);
 
-                    // Delete the images from database
-                    $ad->images()->delete();
-                }
-
-                // After processing images, delete the ads
-                $ads->each->delete();
-            });
-
-            // Commit the transaction
-            DB::commit();
+            if (! $result) {
+                return response()->json(['message' => 'آگهی یافت نشد !'], 404);
+            }
 
             return response()->json([
                 'message' => 'تمامی آگهی‌ها و تصاویر مربوطه با موفقیت حذف شدند',
             ], 200);
+
         } catch (\Exception $e) {
-            // Rollback in case of any failure
             DB::rollBack();
+            Log::error('Error deleting user ads: ' . $e->getMessage(), ['exception' => $e]);
 
             return response()->json([
                 'error'   => 'خطا در حذف آگهی‌ها و تصاویر',
                 'details' => $e->getMessage(),
             ], 500);
         }
+
     }
 
     public function deleteMyAdsById(Ad $ad): JsonResponse
