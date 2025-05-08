@@ -288,4 +288,26 @@ class AdController extends Controller
         return response()->json(['message' => 'آگهی و تصاویر مربوطه با موفقیت حذف شد'], 200);
     }
 
+    public function adsFilter(Request $request): JsonResponse
+    {
+        $ads = Ad::query()
+            ->byCity($request->city)
+            ->bySellPriceOrder($request->sell_price)
+            ->byRentPriceOrder($request->rent_price)
+            ->MinPrice($request->tr_type, $request->min_price)
+            ->MaxPrice($request->tr_type, $request->max_price)
+            ->byPrType($request->pr_type)
+            ->byTrType($request->tr_type)
+            ->byArea($request->area)
+            ->byFloorNumbers($request->floor_numbers)
+            ->byTitle($request->title)
+            ->byRooms($request->rooms)
+            ->HasElevator($request->hasElevator)
+            ->HasParking($request->hasParking)
+            ->TypeOfWc($request->typeOfWc)
+            ->get();
+
+        return response()->json($ads, 200);
+    }
+
 }
