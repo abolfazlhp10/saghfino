@@ -6,13 +6,13 @@ use App\Http\Requests\Core\CreateAdRequest;
 use App\Models\Ad;
 use App\Models\User;
 use App\Services\AdService;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 
 class AdController extends Controller
 {
@@ -263,20 +263,29 @@ class AdController extends Controller
 
     }
 
-    public function deleteMyAdsById(Ad $ad): JsonResponse
+    public function deleteMyAdsById(int $adId): JsonResponse
     {
 
-        foreach ($ad->images as $image) {
+        try {
+            $ad = Ad::findOrFail($adId);
 
-            if (Storage::exists($image->path)) {
-                Storage::delete($image->path);
-            }
+        } catch (ModelNotFoundException $e) {
+            // Catch the error if ad is not found and return a custom JSON response
+            return response()->json(['message' => 'آگهی یافت نشد!'], 404);
         }
 
-        $ad->images()->delete();
+        try {
+            $this->authorize('delete', $ad);
 
-        $ad->delete();
+        } catch (\Throwable $e) {
+            return response()->json(['message' => 'شما مجاز به حذف این آگهی نیستید !'], 403);
+        }
 
-        return response()->json(['message' => 'the ad deleted successfully!'], 200);
+        if (! $this->adService->deleteAdById($ad)) {
+            return response()->json(['message' => 'خطا در حذف آگهی ! '], 404);
+        }
+
+        return response()->json(['message' => 'آگهی و تصاویر مربوطه با موفقیت حذف شد'], 200);
     }
+
 }

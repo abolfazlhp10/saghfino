@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class AdService
 {
@@ -136,6 +137,25 @@ class AdService
         } catch (\Exception $e) {
             DB::rollBack();
             throw $e; // Rethrow the exception to be caught by the calling function
+        }
+    }
+
+    public function deleteAdById(Ad $ad):bool
+    {
+        try {
+
+            foreach ($ad->images as $image) {
+                if (Storage::exists($image->path)) {
+                    Storage::delete($image->path);
+                }
+            }
+
+            $ad->images()->delete();
+
+            return $ad->delete(); // This will return true if successful, false if not
+        } catch (\Exception $e) {
+            Log::error('Error deleting ad or images: ' . $e->getMessage());
+            return false;
         }
     }
 
