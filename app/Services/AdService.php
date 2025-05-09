@@ -5,6 +5,7 @@ use App\Models\Ad;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
@@ -35,6 +36,7 @@ class AdService
      */
     public function createAd(array $data): Ad
     {
+        $data['user_id']=Auth::user()->id;
 
         return Ad::create($data);
     }
