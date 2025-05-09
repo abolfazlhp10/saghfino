@@ -77,7 +77,8 @@ class AuthController extends Controller
             $otp->delete();
 
             $user = User::where('phoneNumber', $request->phone_number)->first();
-            $token = $user->createToken('user')->plainTextToken;
+            $token = $user->createToken('user');
+            $expiresAt = now()->addMinutes(config('sanctum.expiration'));
 
             return response()->json([
                 'firstName' => $user->firstName,
@@ -85,7 +86,8 @@ class AuthController extends Controller
                 'phoneNumber' => $user->phoneNumber,
                 'image'=>$user->image,
                 'role' => $user->roles->first()->name,
-                'token' => $token,
+                'token' => $token->plainTextToken,
+                'token_expires_at' => $expiresAt,
             ], 200);
 
         } else {
