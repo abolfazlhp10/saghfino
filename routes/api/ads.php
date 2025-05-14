@@ -8,14 +8,13 @@ Route::get('ads', [AdController::class, 'index']);
 
 Route::get('ads/filter', [AdController::class, 'adsFilter']);
 
+Route::get('ad/show/{ad}', [AdController::class, 'show']);
 
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('new-advertisement', [AdController::class, 'store']);
 
     Route::delete('ad/{ad}', [AdController::class, 'destroy']);
-
-    Route::get('ad/show/{ad}', [AdController::class, 'show']);
 
     Route::post('ads/{ad}/save',[AdController::class,'saveAd']);
 
