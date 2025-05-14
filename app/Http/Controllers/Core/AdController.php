@@ -1,8 +1,10 @@
 <?php
 namespace App\Http\Controllers\Core;
 
+use App\Classes\AdResponseMessages;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Core\CreateAdRequest;
+use App\Http\Requests\Core\FilterAdsRequest;
 use App\Models\Ad;
 use App\Models\User;
 use App\Services\AdService;
@@ -13,7 +15,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use App\Http\Requests\Core\FilterAdsRequest;
 
 class AdController extends Controller
 {
@@ -69,7 +70,7 @@ class AdController extends Controller
             DB::commit();
 
             return response()->json([
-                'message' => 'آگهی با موفقیت ایجاد شد',
+                'message' => AdResponseMessages::CREATED_SUCCESS,
                 'ad'      => $ad->load(['user', 'images']),
             ], 201);
         } catch (\Exception $e) {
@@ -77,7 +78,7 @@ class AdController extends Controller
             DB::rollBack();
 
             return response()->json([
-                'message' => 'خطا در ایجاد آگهی',
+                'message' => AdResponseMessages::CREATE_ERROR,
                 'error'   => $e->getMessage(),
             ], 500);
         }
@@ -99,12 +100,12 @@ class AdController extends Controller
             $this->adService->deleteAd($ad);
 
             return response()->json([
-                'message' => 'آگهی و تصاویر مربوطه با موفقیت حذف شدند',
+                'message' => AdResponseMessages::DELETED_SUCCESS,
             ], 200);
         } catch (\Throwable $e) {
 
             return response()->json([
-                'message' => 'خطا در حذف آگهی',
+                'message' => AdResponseMessages::DELETE_ERROR,
                 'error'   => $e->getMessage(),
             ], 500);
         }
@@ -136,10 +137,10 @@ class AdController extends Controller
 
             $this->adService->saveAdForUser($ad, $user);
 
-            return response()->json(['message' => 'آگهی با موفقیت ذخیره شد'], 200);
+            return response()->json(['message' => AdResponseMessages::SAVED_SUCCESS], 200);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'خطا در ذخیره آگهی',
+                'message' => AdResponseMessages::SAVE_ERROR,
                 'error'   => $e->getMessage(),
             ], 500);
         }
@@ -159,10 +160,10 @@ class AdController extends Controller
 
             $this->adService->unsaveAdForUser($ad, $user);
 
-            return response()->json(['message' => 'آگهی از لیست ذخیره‌ها حذف شد'], 200);
+            return response()->json(['message' => AdResponseMessages::DELETE_FROM_LIST_SUCCESS], 200);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'خطا در حذف آگهی از لیست ذخیره‌ها',
+                'message' => AdResponseMessages::DELETE_FROM_LIST_ERROR,
                 'error'   => $e->getMessage(),
             ], 500);
         }
@@ -179,7 +180,7 @@ class AdController extends Controller
             return response()->json([$savedAds->load(['images'])], 200);
         }
 
-        return response()->json(['message' => '!آگهی ذخیره شده ای برای این کاربر وجود ندارد'], 404);
+        return response()->json(['message' => AdResponseMessages::SAVED_ADS_NOT_FOUND], 404);
 
     }
 
@@ -194,16 +195,16 @@ class AdController extends Controller
 
             if (! $result) {
                 return response()->json([
-                    'message' => 'آگهی یافت نشد !',
+                    'message' => AdResponseMessages::ADS_NOT_FOUND,
                 ], 404);
             }
 
-            return response()->json(['message' => 'تمام آگهی های ذخیره شدن کاربر با موفقیت حذف گردید'], 200);
+            return response()->json(['message' => AdResponseMessages::DELETE_ALL_SAVED_ADS_SUCCESS], 200);
 
         } catch (\Throwable $e) {
 
             return response()->json([
-                'message' => 'ارور در حذف آگهی های ذخیره شده !',
+                'message' => AdResponseMessages::DELETE_ALL_SAVED_ADS_ERROR,
                 'error'   => $e->getMessage(),
             ], 500);
 
@@ -245,11 +246,11 @@ class AdController extends Controller
             $result = $this->adService->deleteAllUserAds($user);
 
             if (! $result) {
-                return response()->json(['message' => 'آگهی یافت نشد !'], 404);
+                return response()->json(['message' => AdResponseMessages::ADS_NOT_FOUND], 404);
             }
 
             return response()->json([
-                'message' => 'تمامی آگهی‌ها و تصاویر مربوطه با موفقیت حذف شدند',
+                'message' => AdResponseMessages::DELETED_SUCCESS,
             ], 200);
 
         } catch (\Exception $e) {
@@ -257,7 +258,7 @@ class AdController extends Controller
             Log::error('Error deleting user ads: ' . $e->getMessage(), ['exception' => $e]);
 
             return response()->json([
-                'error'   => 'خطا در حذف آگهی‌ها و تصاویر',
+                'error'   => AdResponseMessages::DELETE_ERROR,
                 'details' => $e->getMessage(),
             ], 500);
         }
@@ -272,21 +273,21 @@ class AdController extends Controller
 
         } catch (ModelNotFoundException $e) {
             // Catch the error if ad is not found and return a custom JSON response
-            return response()->json(['message' => 'آگهی یافت نشد!'], 404);
+            return response()->json(['message' => AdResponseMessages::ADS_NOT_FOUND], 404);
         }
 
         try {
             $this->authorize('delete', $ad);
 
         } catch (\Throwable $e) {
-            return response()->json(['message' => 'شما مجاز به حذف این آگهی نیستید !'], 403);
+            return response()->json(['message' => AdResponseMessages::DELETE_AUTHORIZE_ERROR], 403);
         }
 
         if (! $this->adService->deleteAdById($ad)) {
-            return response()->json(['message' => 'خطا در حذف آگهی ! '], 404);
+            return response()->json(['message' => AdResponseMessages::DELETE_ERROR], 404);
         }
 
-        return response()->json(['message' => 'آگهی و تصاویر مربوطه با موفقیت حذف شد'], 200);
+        return response()->json(['message' => AdResponseMessages::DELETED_SUCCESS], 200);
     }
 
     public function adsFilter(FilterAdsRequest $request): JsonResponse
