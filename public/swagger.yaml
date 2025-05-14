@@ -1,0 +1,759 @@
+openapi: 3.0.0
+info:
+  title: Saghfino Real Estate API
+  description: API for managing real estate advertisements and user interactions
+  version: 1.0.0
+servers:
+  - url: /api
+    description: API base URL
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        firstName:
+          type: string
+        lastName:
+          type: string
+        phoneNumber:
+          type: string
+        image:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    Ad:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        user_id:
+          type: integer
+          format: int64
+        title:
+          type: string
+        description:
+          type: string
+        address:
+          type: string
+        area:
+          type: integer
+          description: Area in square meters
+        floor:
+          type: integer
+        number_of_floors:
+          type: integer
+        rooms:
+          type: integer
+        city:
+          type: string
+        type_of_wc:
+          type: string
+          enum: [farangi, wc, both]
+        elevator:
+          type: integer
+          enum: [0, 1]
+          description: 0 = no elevator, 1 = has elevator
+        parking:
+          type: integer
+          enum: [0, 1]
+          description: 0 = no parking, 1 = has parking
+        transaction_type:
+          type: string
+          enum: [sell, rent, mortgage]
+        property_type:
+          type: string
+          enum: [residential, commercial]
+        sell_price:
+          type: integer
+          nullable: true
+        rent_price:
+          type: integer
+          nullable: true
+        mortgage_price:
+          type: integer
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/Image'
+        user:
+          $ref: '#/components/schemas/User'
+    Image:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        ad_id:
+          type: integer
+          format: int64
+        path:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+        error:
+          type: string
+          nullable: true
+    AuthResponse:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        phoneNumber:
+          type: string
+        image:
+          type: string
+          nullable: true
+        role:
+          type: string
+        token:
+          type: string
+        token_expires_at:
+          type: string
+          format: date-time
+paths:
+  /register:
+    post:
+      summary: Register a new user
+      operationId: registerUser
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - first_name
+                - last_name
+                - phone_number
+                - role
+              properties:
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                phone_number:
+                  type: string
+                  pattern: '^09\d{9}$'
+                role:
+                  type: string
+                  enum: [user, real_estate_agent]
+      responses:
+        '200':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  errors:
+                    type: object
+  /send-otp:
+    post:
+      summary: Send OTP to user's phone number
+      operationId: sendOtp
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - phone_number
+              properties:
+                phone_number:
+                  type: string
+                  pattern: '^09\d{9}$'
+      responses:
+        '200':
+          description: OTP sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  code:
+                    type: string
+                    description: Only in test mode
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /verify-otp:
+    post:
+      summary: Verify OTP and get authentication token
+      operationId: verifyOtp
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - phone_number
+                - code
+              properties:
+                phone_number:
+                  type: string
+                code:
+                  type: string
+      responses:
+        '200':
+          description: OTP verified successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '404':
+          description: Invalid OTP
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /ads:
+    get:
+      summary: Get a paginated list of ads
+      operationId: getAds
+      tags:
+        - Ads
+      responses:
+        '200':
+          description: List of ads with pagination
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Ad'
+                  links:
+                    type: object
+                  meta:
+                    type: object
+  /ads/filter:
+    get:
+      summary: Filter ads based on various criteria
+      operationId: filterAds
+      tags:
+        - Ads
+      parameters:
+        - name: city
+          in: query
+          schema:
+            type: string
+        - name: sell_price
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+        - name: rent_price
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+        - name: min_price
+          in: query
+          schema:
+            type: number
+            minimum: 0
+        - name: max_price
+          in: query
+          schema:
+            type: number
+            minimum: 0
+        - name: pr_type
+          in: query
+          schema:
+            type: string
+            enum: [residential, commercial]
+        - name: tr_type
+          in: query
+          schema:
+            type: string
+            enum: [sell, rent]
+        - name: area
+          in: query
+          schema:
+            type: number
+            minimum: 0
+        - name: floor_numbers
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+        - name: title
+          in: query
+          schema:
+            type: string
+        - name: rooms
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+        - name: hasElevator
+          in: query
+          schema:
+            type: integer
+            enum: [0, 1]
+        - name: hasParking
+          in: query
+          schema:
+            type: integer
+            enum: [0, 1]
+        - name: typeOfWc
+          in: query
+          schema:
+            type: string
+            enum: [farangi, wc, both]
+      responses:
+        '200':
+          description: Filtered list of ads
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Ad'
+  /ad/show/{ad}:
+    get:
+      summary: Get details of a specific ad
+      operationId: getAd
+      tags:
+        - Ads
+      parameters:
+        - name: ad
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Ad details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ad'
+        '404':
+          description: Ad not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /new-advertisement:
+    post:
+      summary: Create a new advertisement
+      operationId: createAd
+      tags:
+        - Ads
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - title
+                - description
+                - address
+                - area
+                - floor
+                - number_of_floors
+                - rooms
+                - city
+                - type_of_wc
+                - elevator
+                - parking
+                - transaction_type
+                - property_type
+                - images
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                address:
+                  type: string
+                area:
+                  type: integer
+                  minimum: 1
+                floor:
+                  type: integer
+                  minimum: 0
+                number_of_floors:
+                  type: integer
+                  minimum: 1
+                rooms:
+                  type: integer
+                  minimum: 1
+                city:
+                  type: string
+                type_of_wc:
+                  type: string
+                  enum: [farangi, wc, both]
+                elevator:
+                  type: integer
+                  enum: [0, 1]
+                  description: 0 = no elevator, 1 = has elevator
+                parking:
+                  type: integer
+                  enum: [0, 1]
+                  description: 0 = no parking, 1 = has parking
+                transaction_type:
+                  type: string
+                  enum: [sell, rent, mortgage]
+                property_type:
+                  type: string
+                  enum: [residential, commercial]
+                sell_price:
+                  type: integer
+                  nullable: true
+                rent_price:
+                  type: integer
+                  nullable: true
+                mortgage_price:
+                  type: integer
+                  nullable: true
+                images:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        '201':
+          description: Ad created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  ad:
+                    $ref: '#/components/schemas/Ad'
+        '500':
+          description: Error creating ad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /ad/{ad}:
+    delete:
+      summary: Delete an ad
+      operationId: deleteAd
+      tags:
+        - Ads
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: ad
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Ad deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '403':
+          description: Unauthorized to delete ad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Error deleting ad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /ads/{ad}/save:
+    post:
+      summary: Save an ad for the authenticated user
+      operationId: saveAd
+      tags:
+        - Ads
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: ad
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Ad saved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '500':
+          description: Error saving ad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /ads/{ad}/unsave:
+    delete:
+      summary: Remove an ad from user's saved ads
+      operationId: unsaveAd
+      tags:
+        - Ads
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: ad
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Ad removed from saved ads
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '500':
+          description: Error removing ad from saved ads
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /ads/saved-ads:
+    get:
+      summary: Get user's saved ads
+      operationId: getSavedAds
+      tags:
+        - Ads
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of saved ads
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Ad'
+        '404':
+          description: No saved ads found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+    delete:
+      summary: Delete all saved ads for the authenticated user
+      operationId: deleteAllSavedAds
+      tags:
+        - Ads
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: All saved ads deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '404':
+          description: No saved ads found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '500':
+          description: Error deleting saved ads
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /my-ads:
+    get:
+      summary: Get ads created by the authenticated user
+      operationId: getMyAds
+      tags:
+        - Ads
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of user's ads
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Ad'
+        '404':
+          description: No ads found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Delete all ads created by the authenticated user
+      operationId: deleteAllMyAds
+      tags:
+        - Ads
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: All user's ads deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '404':
+          description: No ads found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '500':
+          description: Error deleting ads
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /my-ads/{ad}:
+    delete:
+      summary: Delete a specific ad created by the authenticated user
+      operationId: deleteMyAd
+      tags:
+        - Ads
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: ad
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Ad deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '403':
+          description: Unauthorized to delete ad
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '404':
+          description: Ad not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
