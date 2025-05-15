@@ -10,6 +10,8 @@ Route::get('ads/filter', [AdController::class, 'adsFilter']);
 
 Route::get('ad/show/{ad}', [AdController::class, 'show']);
 
+Route::get('cities',[AdController::class,'getCities']);
+
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('new-advertisement', [AdController::class, 'store']);

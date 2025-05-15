@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Core\CreateAdRequest;
 use App\Http\Requests\Core\FilterAdsRequest;
 use App\Models\Ad;
+use App\Models\City;
 use App\Models\User;
 use App\Services\AdService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -310,6 +311,11 @@ class AdController extends Controller
             ->get();
 
         return response()->json($ads, 200);
+    }
+
+    public function getCities(): JsonResponse
+    {
+        return response()->json(City::all());
     }
 
 }
