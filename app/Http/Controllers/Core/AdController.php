@@ -1,7 +1,7 @@
 <?php
 namespace App\Http\Controllers\Core;
 
-use App\Classes\AdResponseMessages;
+use App\Classes\ResponseMessages;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Core\CreateAdRequest;
 use App\Http\Requests\Core\FilterAdsRequest;
@@ -71,7 +71,7 @@ class AdController extends Controller
             DB::commit();
 
             return response()->json([
-                'message' => AdResponseMessages::CREATED_SUCCESS,
+                'message' => ResponseMessages::CREATED_SUCCESS,
                 'ad'      => $ad->load(['user', 'images']),
             ], 201);
         } catch (\Exception $e) {
@@ -79,7 +79,7 @@ class AdController extends Controller
             DB::rollBack();
 
             return response()->json([
-                'message' => AdResponseMessages::CREATE_ERROR,
+                'message' => ResponseMessages::CREATE_ERROR,
                 'error'   => $e->getMessage(),
             ], 500);
         }
@@ -101,12 +101,12 @@ class AdController extends Controller
             $this->adService->deleteAd($ad);
 
             return response()->json([
-                'message' => AdResponseMessages::DELETED_SUCCESS,
+                'message' => ResponseMessages::DELETED_SUCCESS,
             ], 200);
         } catch (\Throwable $e) {
 
             return response()->json([
-                'message' => AdResponseMessages::DELETE_ERROR,
+                'message' => ResponseMessages::DELETE_ERROR,
                 'error'   => $e->getMessage(),
             ], 500);
         }
@@ -138,10 +138,10 @@ class AdController extends Controller
 
             $this->adService->saveAdForUser($ad, $user);
 
-            return response()->json(['message' => AdResponseMessages::SAVED_SUCCESS], 200);
+            return response()->json(['message' => ResponseMessages::SAVED_SUCCESS], 200);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => AdResponseMessages::SAVE_ERROR,
+                'message' => ResponseMessages::SAVE_ERROR,
                 'error'   => $e->getMessage(),
             ], 500);
         }
@@ -161,10 +161,10 @@ class AdController extends Controller
 
             $this->adService->unsaveAdForUser($ad, $user);
 
-            return response()->json(['message' => AdResponseMessages::DELETE_FROM_LIST_SUCCESS], 200);
+            return response()->json(['message' => ResponseMessages::DELETE_FROM_LIST_SUCCESS], 200);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => AdResponseMessages::DELETE_FROM_LIST_ERROR,
+                'message' => ResponseMessages::DELETE_FROM_LIST_ERROR,
                 'error'   => $e->getMessage(),
             ], 500);
         }
@@ -181,7 +181,7 @@ class AdController extends Controller
             return response()->json([$savedAds->load(['images'])], 200);
         }
 
-        return response()->json(['message' => AdResponseMessages::SAVED_ADS_NOT_FOUND], 404);
+        return response()->json(['message' => ResponseMessages::SAVED_ADS_NOT_FOUND], 404);
 
     }
 
@@ -318,11 +318,6 @@ class AdController extends Controller
         return response()->json(City::all());
     }
 
-    public function getRealEstateAgents(): JsonResponse
-    {
-        $real_estate_agents = $this->adService->getAllRealEstateAgents();
-
-        return response()->json($real_estate_agents);
-    }
+    
 
 }

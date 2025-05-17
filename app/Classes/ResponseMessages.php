@@ -1,7 +1,7 @@
 <?php
 namespace App\Classes;
 
-class AdResponseMessages
+class ResponseMessages
 {
     const CREATED_SUCCESS              = "آگهی با موفقیت ایجاد شد";
     const CREATE_ERROR                 = "خطا در ایجاد آگهی !";
@@ -16,4 +16,5 @@ class AdResponseMessages
     const DELETE_ALL_SAVED_ADS_SUCCESS = "تمام آگهی های ذخیره شدن کاربر با موفقیت حذف گردید";
     const DELETE_ALL_SAVED_ADS_ERROR   = "ارور در حذف آگهی های ذخیره شده !";
     const DELETE_AUTHORIZE_ERROR       = "شما مجاز به حذف این آگهی نیستید !";
+    const NOT_FOUND = "! اطلاعات یافت نشد";
 }
