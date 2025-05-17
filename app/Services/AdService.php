@@ -4,11 +4,13 @@ namespace App\Services;
 use App\Models\Ad;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Spatie\Permission\Models\Role;
 
 class AdService
 {
@@ -36,7 +38,7 @@ class AdService
      */
     public function createAd(array $data): Ad
     {
-        $data['user_id']=Auth::user()->id;
+        $data['user_id'] = Auth::user()->id;
 
         return Ad::create($data);
     }
@@ -142,7 +144,7 @@ class AdService
         }
     }
 
-    public function deleteAdById(Ad $ad):bool
+    public function deleteAdById(Ad $ad): bool
     {
         try {
 
@@ -159,6 +161,15 @@ class AdService
             Log::error('Error deleting ad or images: ' . $e->getMessage());
             return false;
         }
+    }
+
+    public function getAllRealEstateAgents(): Collection
+    {
+        $role = Role::findByName('real_estate_agent');
+
+        $real_estate_agents = $role->users()->get()->makeHidden('pivot');
+
+        return $real_estate_agents;
     }
 
 }

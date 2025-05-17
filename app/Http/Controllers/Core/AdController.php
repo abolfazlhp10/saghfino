@@ -318,4 +318,11 @@ class AdController extends Controller
         return response()->json(City::all());
     }
 
+    public function getRealEstateAgents(): JsonResponse
+    {
+        $real_estate_agents = $this->adService->getAllRealEstateAgents();
+
+        return response()->json($real_estate_agents);
+    }
+
 }
