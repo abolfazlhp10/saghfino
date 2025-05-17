@@ -757,3 +757,74 @@ paths:
                 properties:
                   message:
                     type: string
+  /cities:
+    get:
+      summary: Get list of all available cities
+      operationId: getCities
+      tags:
+        - Ads
+      responses:
+        '200':
+          description: List of cities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      format: int64
+                    name:
+                      type: string
+                    created_at:
+                      type: string
+                      format: date-time
+                    updated_at:
+                      type: string
+                      format: date-time
+  /real-estate-agents:
+    get:
+      summary: Get list of all real estate agents
+      operationId: getRealEstateAgents
+      tags:
+        - Ads
+      responses:
+        '200':
+          description: List of real estate agents
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+  /real-estate-agents/{agent_id}:
+    get:
+      summary: Get details of a specific real estate agent
+      operationId: getRealEstateAgentById
+      tags:
+        - Ads
+      parameters:
+        - name: agent_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Real estate agent details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: Real estate agent not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
