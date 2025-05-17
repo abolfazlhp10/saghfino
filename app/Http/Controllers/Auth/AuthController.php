@@ -1,7 +1,7 @@
 <?php
-
 namespace App\Http\Controllers\Auth;
 
+use App\Classes\ResponseMessages;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\PhoneNumberRequest;
 use App\Http\Requests\Auth\UserRegisterRequest;
@@ -20,7 +20,7 @@ class AuthController extends Controller
     public function __construct(FarazSmsService $farazSmsService)
     {
         $this->farazSmsService = $farazSmsService;
-        $this->isTestMode = config('app.env') === 'testing' || config('app.debug');
+        $this->isTestMode      = config('app.env') === 'testing' || config('app.debug');
     }
 
     public function sendOtp(PhoneNumberRequest $request): JsonResponse
@@ -29,8 +29,8 @@ class AuthController extends Controller
 
         $user = User::where('phoneNumber', $phoneNumber)->first();
 
-        if (!$user) {
-            return response()->json(['error' => 'این شماره موبایل در سیستم وحود ندارد'], 422);
+        if (! $user) {
+            return response()->json(['error' => ResponseMessages::PHONE_NOT_FOUND], 422);
         }
 
         $otp = $this->makeOtp($phoneNumber);
@@ -40,7 +40,7 @@ class AuthController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'SMS sent successfully in the test mode',
-                'code' => $otp,
+                'code'    => $otp,
             ], 200);
         }
 
@@ -57,8 +57,8 @@ class AuthController extends Controller
         $otp = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
 
         Otp::create([
-            'phoneNumber' => $phoneNumber,
-            'code' => $otp,
+            'phoneNumber'  => $phoneNumber,
+            'code'         => $otp,
             'created_time' => now(),
         ]);
 
@@ -76,17 +76,17 @@ class AuthController extends Controller
 
             $otp->delete();
 
-            $user = User::where('phoneNumber', $request->phone_number)->first();
-            $token = $user->createToken('user');
+            $user      = User::where('phoneNumber', $request->phone_number)->first();
+            $token     = $user->createToken('user');
             $expiresAt = now()->addMinutes(config('sanctum.expiration'));
 
             return response()->json([
-                'firstName' => $user->firstName,
-                'lastName' => $user->lastName,
-                'phoneNumber' => $user->phoneNumber,
-                'image'=>$user->image,
-                'role' => $user->roles->first()->name,
-                'token' => $token->plainTextToken,
+                'firstName'        => $user->firstName,
+                'lastName'         => $user->lastName,
+                'phoneNumber'      => $user->phoneNumber,
+                'image'            => $user->image,
+                'role'             => $user->roles->first()->name,
+                'token'            => $token->plainTextToken,
                 'token_expires_at' => $expiresAt,
             ], 200);
 
@@ -98,8 +98,8 @@ class AuthController extends Controller
     public function register(UserRegisterRequest $request): User
     {
         $user = User::create([
-            'firstName' => $request->first_name,
-            'lastName' => $request->last_name,
+            'firstName'   => $request->first_name,
+            'lastName'    => $request->last_name,
             'phoneNumber' => $request->phone_number,
         ]);
 
