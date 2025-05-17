@@ -12,8 +12,6 @@ Route::get('ad/show/{ad}', [AdController::class, 'show']);
 
 Route::get('cities',[AdController::class,'getCities']);
 
-Route::get('/real-estate-agents', [AdController::class,'getRealEstateAgents']);
-
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('new-advertisement', [AdController::class, 'store']);
