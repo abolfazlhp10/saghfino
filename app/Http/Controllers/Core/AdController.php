@@ -196,16 +196,16 @@ class AdController extends Controller
 
             if (! $result) {
                 return response()->json([
-                    'message' => AdResponseMessages::ADS_NOT_FOUND,
+                    'message' => ResponseMessages::ADS_NOT_FOUND,
                 ], 404);
             }
 
-            return response()->json(['message' => AdResponseMessages::DELETE_ALL_SAVED_ADS_SUCCESS], 200);
+            return response()->json(['message' => ResponseMessages::DELETE_ALL_SAVED_ADS_SUCCESS], 200);
 
         } catch (\Throwable $e) {
 
             return response()->json([
-                'message' => AdResponseMessages::DELETE_ALL_SAVED_ADS_ERROR,
+                'message' => ResponseMessages::DELETE_ALL_SAVED_ADS_ERROR,
                 'error'   => $e->getMessage(),
             ], 500);
 
@@ -247,11 +247,11 @@ class AdController extends Controller
             $result = $this->adService->deleteAllUserAds($user);
 
             if (! $result) {
-                return response()->json(['message' => AdResponseMessages::ADS_NOT_FOUND], 404);
+                return response()->json(['message' => ResponseMessages::ADS_NOT_FOUND], 404);
             }
 
             return response()->json([
-                'message' => AdResponseMessages::DELETED_SUCCESS,
+                'message' => ResponseMessages::DELETED_SUCCESS,
             ], 200);
 
         } catch (\Exception $e) {
@@ -259,7 +259,7 @@ class AdController extends Controller
             Log::error('Error deleting user ads: ' . $e->getMessage(), ['exception' => $e]);
 
             return response()->json([
-                'error'   => AdResponseMessages::DELETE_ERROR,
+                'error'   => ResponseMessages::DELETE_ERROR,
                 'details' => $e->getMessage(),
             ], 500);
         }
@@ -274,21 +274,21 @@ class AdController extends Controller
 
         } catch (ModelNotFoundException $e) {
             // Catch the error if ad is not found and return a custom JSON response
-            return response()->json(['message' => AdResponseMessages::ADS_NOT_FOUND], 404);
+            return response()->json(['message' => ResponseMessages::ADS_NOT_FOUND], 404);
         }
 
         try {
             $this->authorize('delete', $ad);
 
         } catch (\Throwable $e) {
-            return response()->json(['message' => AdResponseMessages::DELETE_AUTHORIZE_ERROR], 403);
+            return response()->json(['message' => ResponseMessages::DELETE_AUTHORIZE_ERROR], 403);
         }
 
         if (! $this->adService->deleteAdById($ad)) {
-            return response()->json(['message' => AdResponseMessages::DELETE_ERROR], 404);
+            return response()->json(['message' => ResponseMessages::DELETE_ERROR], 404);
         }
 
-        return response()->json(['message' => AdResponseMessages::DELETED_SUCCESS], 200);
+        return response()->json(['message' => ResponseMessages::DELETED_SUCCESS], 200);
     }
 
     public function adsFilter(FilterAdsRequest $request): JsonResponse
