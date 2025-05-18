@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Auth;
 
 use App\Classes\ResponseMessages;
@@ -44,10 +45,13 @@ class AuthController extends Controller
             ], 200);
         }
 
-        $response = $this->farazSmsService->sendPatternSms($otp, [$phoneNumber],
+        $response = $this->farazSmsService->sendPatternSms(
+            $otp,
+            [$phoneNumber],
             [
                 'verification-code' => $otp,
-            ]);
+            ]
+        );
 
         return $response;
     }
@@ -89,7 +93,6 @@ class AuthController extends Controller
                 'token'            => $token->plainTextToken,
                 'token_expires_at' => $expiresAt,
             ], 200);
-
         } else {
             return response()->json(['message' => 'The code is false'], 404);
         }
@@ -101,6 +104,8 @@ class AuthController extends Controller
             'firstName'   => $request->first_name,
             'lastName'    => $request->last_name,
             'phoneNumber' => $request->phone_number,
+            'image'       => $request->hasFile('image') ? $request->file('image')->store('users', 'public') : null
+
         ]);
 
         $user->assignRole($request->role);
