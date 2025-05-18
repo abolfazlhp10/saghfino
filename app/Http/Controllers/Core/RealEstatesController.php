@@ -59,4 +59,8 @@ class RealEstatesController extends Controller
         }
     }
 
+    public function getAllRealEstates(Request $request)
+    {
+        return $this->realEstateService->getAllRealEstates($request);
+    }
 }

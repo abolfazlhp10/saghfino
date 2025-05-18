@@ -6,6 +6,7 @@ use App\Models\RealEstate;
 use Spatie\Permission\Models\Role;
 use App\Models\User;
 use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
@@ -25,7 +26,7 @@ class RealEstateService
 
         $agent = User::where('id', $agent_id)
             ->whereHas('roles', function ($query) {
-                $query->where('name', 'real_estate_agent'); 
+                $query->where('name', 'real_estate_agent');
             })
             ->first();
 
@@ -37,7 +38,7 @@ class RealEstateService
     {
 
         try {
-            
+
             return RealEstate::create([
                 // 'agent_id' => auth()->user()->id,
                 'name' => $request->name,
@@ -46,14 +47,20 @@ class RealEstateService
                 'city' => $request->city,
                 'image' => $request->hasFile('image') ? $request->file('image')->store('realEstates', 'public') : null,
             ]);
-
-
         } catch (\Throwable $e) {
-            Log::error('error in creating new real estate : ',[$e->getMessage()]);
+            Log::error('error in creating new real estate : ', [$e->getMessage()]);
         }
+    }
 
-        
+    public function getAllRealEstates(Request $request)
+    {
+        $query = RealEstate::query();
 
-        
+        if ($request->city) {
+            $real_estates = $query->where('city', $request->city)->get();
+            return $real_estates;
+        } else {
+            return RealEstate::paginate(12);
+        }
     }
 }

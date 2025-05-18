@@ -7,6 +7,11 @@ Route::get('/real-estate-agents', [RealEstatesController::class, 'getRealEstateA
 
 Route::get('/real-estate-agents/{agent_id}', [RealEstatesController::class, 'getRealEstateAgentById']);
 
-Route::prefix('real-estate')->middleware('auth:sanctum')->group(function () {
-    Route::post('/create', [RealEstatesController::class, 'save']);
+
+Route::prefix('real-estates')->group(function () {
+
+    Route::post('/create', [RealEstatesController::class, 'save'])->middleware('auth:sanctum');
+
+    Route::get('/',[RealEstatesController::class,'getAllRealEstates']);
+
 });
