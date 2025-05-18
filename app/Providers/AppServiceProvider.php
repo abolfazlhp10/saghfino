@@ -22,13 +22,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        RateLimiter::for('otp', function (Request $request) {
-            return Limit::perMinutes(1, 5)
+        RateLimiter::for('sendOtp', function (Request $request) {
+            return Limit::perMinutes(1, 3)
                 ->by($request->ip());
         });
 
         RateLimiter::for('verifyOtp',function(Request $request){
-            return Limit::perMinutes(1,5)
+            return Limit::perMinutes(1,3)
                 ->by($request->ip());
         });
     }
