@@ -15,5 +15,9 @@ class RealEstate extends Model
         'rate',
         'address',
     ];
-    
+
+    public function agent()
+    {
+        return $this->belongsTo(User::class, 'agent_id');
+    }
 }

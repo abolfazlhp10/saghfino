@@ -21,4 +21,5 @@ class ResponseMessages
     const PHONE_NOT_FOUND              = "این شماره موبایل در سیستم وجود ندارد";
     const REAL_ESTATE_CREATE_SUCCESS   = " اطلاعات املاک شما با موفقیت اضافه شد ";
     const REAL_ESTATE_CREATE_ERROR     = "خطا در عملیات ایجاد املاک !";
+    const REAL_ESTATE_NOT_FOUND        = "املاک یافت نشد !";
 }

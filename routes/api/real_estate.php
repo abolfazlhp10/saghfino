@@ -14,4 +14,6 @@ Route::prefix('real-estates')->group(function () {
 
     Route::get('/',[RealEstatesController::class,'getAllRealEstates']);
 
+    Route::get('/{id}',[RealEstatesController::class,'getRealEstateById']);
+
 });

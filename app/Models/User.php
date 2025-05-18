@@ -36,4 +36,8 @@ class User extends Authenticatable
         return $this->belongsToMany(Ad::class, 'user_ad', 'user_id', 'ad_id')->withTimestamps();
     }
 
+    public function realEstate(){
+        return $this->hasOne(RealEstate::class, 'agent_id');
+    }
+
 }

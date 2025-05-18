@@ -14,6 +14,7 @@ use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class RealEstatesController extends Controller
 {
@@ -46,21 +47,32 @@ class RealEstatesController extends Controller
         try {
             $this->authorize('create', RealEstate::class);
         } catch (Exception $e) {
-            return response()->json(['message'=>'Unauthorize action ! '],Response::HTTP_UNAUTHORIZED);
+            return response()->json(['message' => 'Unauthorize action ! '], Response::HTTP_UNAUTHORIZED);
         }
 
 
         $result = $this->realEstateService->createNewRealEstate($request);
 
-        if($result){
-            return response()->json(['message'=>ResponseMessages::REAL_ESTATE_CREATE_SUCCESS]);
-        }else{
-            return response()->json(['message'=>ResponseMessages::REAL_ESTATE_CREATE_ERROR]);
+        if ($result) {
+            return response()->json(['message' => ResponseMessages::REAL_ESTATE_CREATE_SUCCESS]);
+        } else {
+            return response()->json(['message' => ResponseMessages::REAL_ESTATE_CREATE_ERROR]);
         }
     }
 
     public function getAllRealEstates(Request $request)
     {
         return $this->realEstateService->getAllRealEstates($request);
+    }
+
+    public function getRealEstateById(int $id)
+    {
+        try {
+            $realEstate = RealEstate::findOrFail($id);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => ResponseMessages::REAL_ESTATE_NOT_FOUND], Response::HTTP_NOT_FOUND);
+        }
+
+        return $realEstate->load(['agent']);
     }
 }
