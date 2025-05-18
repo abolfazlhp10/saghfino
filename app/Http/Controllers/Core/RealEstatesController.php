@@ -1,18 +1,26 @@
 <?php
+
 namespace App\Http\Controllers\Core;
 
 use App\Classes\ResponseMessages;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Core\CreateRealEstateRequest;
+use App\Models\RealEstate;
 use App\Services\RealEstateService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use App\Models\User;
+use Exception;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class RealEstatesController extends Controller
 {
 
-    public function __construct(private readonly RealEstateService $realEstateService)
-    {
+    use AuthorizesRequests;
 
-    }
+    public function __construct(private readonly RealEstateService $realEstateService) {}
 
     public function getRealEstateAgents(): JsonResponse
     {
@@ -31,6 +39,24 @@ class RealEstatesController extends Controller
         }
 
         return response()->json($agent);
+    }
+
+    public function save(CreateRealEstateRequest $request)
+    {
+        try {
+            $this->authorize('create', RealEstate::class);
+        } catch (Exception $e) {
+            return response()->json(['message'=>'Unauthorize action ! '],Response::HTTP_UNAUTHORIZED);
+        }
+
+
+        $result = $this->realEstateService->createNewRealEstate($request);
+
+        if($result){
+            return response()->json(['message'=>ResponseMessages::REAL_ESTATE_CREATE_SUCCESS]);
+        }else{
+            return response()->json(['message'=>ResponseMessages::REAL_ESTATE_CREATE_ERROR]);
+        }
     }
 
 }

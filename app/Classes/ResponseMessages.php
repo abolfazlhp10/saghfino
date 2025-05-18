@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Classes;
 
 class ResponseMessages
@@ -17,5 +18,7 @@ class ResponseMessages
     const DELETE_ALL_SAVED_ADS_ERROR   = "ارور در حذف آگهی های ذخیره شده !";
     const DELETE_AUTHORIZE_ERROR       = "شما مجاز به حذف این آگهی نیستید !";
     const NOT_FOUND                    = "! اطلاعات یافت نشد";
-    const PHONE_NOT_FOUND              = "این شماره موبایل در سیستم وجود ندارد'";
+    const PHONE_NOT_FOUND              = "این شماره موبایل در سیستم وجود ندارد";
+    const REAL_ESTATE_CREATE_SUCCESS   = " اطلاعات املاک شما با موفقیت اضافه شد ";
+    const REAL_ESTATE_CREATE_ERROR     = "خطا در عملیات ایجاد املاک !";
 }

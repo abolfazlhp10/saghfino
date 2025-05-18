@@ -1,9 +1,13 @@
 <?php
+
 namespace App\Services;
 
+use App\Models\RealEstate;
 use Spatie\Permission\Models\Role;
 use App\Models\User;
+use Exception;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 
 class RealEstateService
 {
@@ -21,11 +25,35 @@ class RealEstateService
 
         $agent = User::where('id', $agent_id)
             ->whereHas('roles', function ($query) {
-                $query->where('name', 'real_estate_agent');
+                $query->where('name', 'real_estate_agent'); 
             })
             ->first();
 
         return $agent;
+    }
 
+
+    public function createNewRealEstate($request)
+    {
+
+        try {
+            
+            return RealEstate::create([
+                // 'agent_id' => auth()->user()->id,
+                'name' => $request->name,
+                'tagline' => $request->tagline,
+                'address' => $request->address,
+                'city' => $request->city,
+                'image' => $request->hasFile('image') ? $request->file('image')->store('realEstates', 'public') : null,
+            ]);
+
+
+        } catch (\Throwable $e) {
+            Log::error('error in creating new real estate : ',[$e->getMessage()]);
+        }
+
+        
+
+        
     }
 }
