@@ -1,14 +1,13 @@
 <?php
-
 namespace App\Services;
 
 use App\Models\RealEstate;
-use Spatie\Permission\Models\Role;
+use App\Models\RealEstateRate;
 use App\Models\User;
-use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
+use Spatie\Permission\Models\Role;
 
 class RealEstateService
 {
@@ -21,7 +20,7 @@ class RealEstateService
         return $real_estate_agents;
     }
 
-    public function getRealEstateAgentById($agent_id): Collection|null
+    public function getRealEstateAgentById($agent_id): Collection | null
     {
 
         $agent = User::where('id', $agent_id)
@@ -33,7 +32,6 @@ class RealEstateService
         return $agent;
     }
 
-
     public function createNewRealEstate($request)
     {
 
@@ -41,11 +39,11 @@ class RealEstateService
 
             return RealEstate::create([
                 // 'agent_id' => auth()->user()->id,
-                'name' => $request->name,
+                'name'    => $request->name,
                 'tagline' => $request->tagline,
                 'address' => $request->address,
-                'city' => $request->city,
-                'image' => $request->hasFile('image') ? $request->file('image')->store('realEstates', 'public') : null,
+                'city'    => $request->city,
+                'image'   => $request->hasFile('image') ? $request->file('image')->store('realEstates', 'public') : null,
             ]);
         } catch (\Throwable $e) {
             Log::error('error in creating new real estate : ', [$e->getMessage()]);
@@ -62,5 +60,24 @@ class RealEstateService
         } else {
             return RealEstate::paginate(12);
         }
+    }
+
+    public function saveRate($request): string
+    {
+        try {
+
+            RealEstateRate::create([
+                'rate'           => $request->rate,
+                'user_id'        => auth()->user()->id,
+                'real_estate_id' => $request->real_estate_id,
+            ]);
+
+            return 'true';
+
+        } catch (\Exception $e) {
+            Log::error('error in save the real estate rate : ', [$e->getMessage()]);
+            return 'false';
+        }
+
     }
 }

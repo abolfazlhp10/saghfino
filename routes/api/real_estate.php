@@ -16,4 +16,6 @@ Route::prefix('real-estates')->group(function () {
 
     Route::get('/{id}',[RealEstatesController::class,'getRealEstateById']);
 
+    Route::post('/rate', [RealEstatesController::class, 'rateRealEsate'])->middleware('auth:sanctum');
+
 });

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Classes;
 
 class ResponseMessages
@@ -22,4 +21,6 @@ class ResponseMessages
     const REAL_ESTATE_CREATE_SUCCESS   = " اطلاعات املاک شما با موفقیت اضافه شد ";
     const REAL_ESTATE_CREATE_ERROR     = "خطا در عملیات ایجاد املاک !";
     const REAL_ESTATE_NOT_FOUND        = "املاک یافت نشد !";
+    const REAL_ESTATE_RATE_ADDED       = "امتیاز شما با موفقیت ثبت گردید ";
+    const REAL_ESTATE_RATE_ERROR       = "خطا در عملیات ثبت امتیاز !";
 }

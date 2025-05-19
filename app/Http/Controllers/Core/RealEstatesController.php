@@ -1,27 +1,26 @@
 <?php
-
 namespace App\Http\Controllers\Core;
 
 use App\Classes\ResponseMessages;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Core\CreateRealEstateRequest;
+use App\Http\Requests\Core\RateRealEstateRequest;
 use App\Models\RealEstate;
 use App\Services\RealEstateService;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use App\Models\User;
 use Exception;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class RealEstatesController extends Controller
 {
 
     use AuthorizesRequests;
 
-    public function __construct(private readonly RealEstateService $realEstateService) {}
+    public function __construct(private readonly RealEstateService $realEstateService)
+    {}
 
     public function getRealEstateAgents(): JsonResponse
     {
@@ -50,7 +49,6 @@ class RealEstatesController extends Controller
             return response()->json(['message' => 'Unauthorize action ! '], Response::HTTP_UNAUTHORIZED);
         }
 
-
         $result = $this->realEstateService->createNewRealEstate($request);
 
         if ($result) {
@@ -74,5 +72,18 @@ class RealEstatesController extends Controller
         }
 
         return $realEstate->load(['agent']);
+    }
+
+    public function rateRealEsate(RateRealEstateRequest $request): JsonResponse
+    {
+        $result = $this->realEstateService->saveRate($request);
+
+        if ($result == 'false') {
+
+            return response()->json(['message' => ResponseMessages::REAL_ESTATE_RATE_ERROR], Response::HTTP_INTERNAL_SERVER_ERROR);
+
+        }
+
+        return response()->json(['message' => ResponseMessages::REAL_ESTATE_RATE_ADDED], Response::HTTP_OK);
     }
 }
