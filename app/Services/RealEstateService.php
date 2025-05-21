@@ -38,7 +38,7 @@ class RealEstateService
         try {
 
             return RealEstate::create([
-                // 'agent_id' => auth()->user()->id,
+                'agent_id' => auth()->user()->id,
                 'name'    => $request->name,
                 'tagline' => $request->tagline,
                 'address' => $request->address,
