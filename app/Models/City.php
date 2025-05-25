@@ -5,7 +5,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class City extends Model
 {
-    protected $fillable = ['name'];
+    protected $fillable = ['name','province_id'];
 
     protected $hidden = ['created_at', 'updated_at'];
 }
