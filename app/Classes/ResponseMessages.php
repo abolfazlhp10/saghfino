@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Classes;
 
 class ResponseMessages
@@ -23,4 +24,6 @@ class ResponseMessages
     const REAL_ESTATE_NOT_FOUND        = "املاک یافت نشد !";
     const REAL_ESTATE_RATE_ADDED       = "امتیاز شما با موفقیت ثبت گردید ";
     const REAL_ESTATE_RATE_ERROR       = "خطا در عملیات ثبت امتیاز !";
+    const CITY_NOT_FOUND               = 'شهری یافت نشد';
+    const CITY_FETCH_ERROR             = "خطا در دریافت اطلاعات شهرها !";
 }

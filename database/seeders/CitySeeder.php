@@ -14,18 +14,19 @@ class CitySeeder extends Seeder
      */
     public function run(): void
     {
-        $result = Http::get('https://www.iran-locations-api.ir/api/v1/fa/cities');
+        $result = Http::get('https://iranplacesapi.liara.run/api/cities');
 
         $cities = $result->json();
-    
+
+
         foreach ($cities as $city) {
-    
+
             City::create([
                 'name' => $city['name'],
+                'province_id' => $city['province_id']
             ]);
-    
         }
-    
-        echo 'success';
+
+        dd('success');
     }
 }

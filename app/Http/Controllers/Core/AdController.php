@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Core;
 
 use App\Classes\ResponseMessages;
@@ -7,15 +8,18 @@ use App\Http\Requests\Core\CreateAdRequest;
 use App\Http\Requests\Core\FilterAdsRequest;
 use App\Models\Ad;
 use App\Models\City;
+use App\Models\Province;
 use App\Models\User;
 use App\Services\AdService;
+use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class AdController extends Controller
 {
@@ -23,8 +27,7 @@ class AdController extends Controller
 
     const DEFAULT_PAGINATION = 20;
 
-    public function __construct(private readonly AdService $adService)
-    {}
+    public function __construct(private readonly AdService $adService) {}
 
     /**
      * Get the authenticated user
@@ -182,7 +185,6 @@ class AdController extends Controller
         }
 
         return response()->json(['message' => ResponseMessages::SAVED_ADS_NOT_FOUND], 404);
-
     }
 
     public function deleteAllSavedAds(): JsonResponse
@@ -201,16 +203,13 @@ class AdController extends Controller
             }
 
             return response()->json(['message' => ResponseMessages::DELETE_ALL_SAVED_ADS_SUCCESS], 200);
-
         } catch (\Throwable $e) {
 
             return response()->json([
                 'message' => ResponseMessages::DELETE_ALL_SAVED_ADS_ERROR,
                 'error'   => $e->getMessage(),
             ], 500);
-
         }
-
     }
 
     public function showMyAds(): JsonResponse
@@ -228,14 +227,12 @@ class AdController extends Controller
             }
 
             return response()->json($ads, 200);
-
         } catch (\Throwable $e) {
             return response()->json([
                 'message' => 'server error !',
                 'error'   => $e->getMessage(),
             ], 500);
         }
-
     }
 
     public function deleteAllMyAds(): JsonResponse
@@ -253,7 +250,6 @@ class AdController extends Controller
             return response()->json([
                 'message' => ResponseMessages::DELETED_SUCCESS,
             ], 200);
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error deleting user ads: ' . $e->getMessage(), ['exception' => $e]);
@@ -263,7 +259,6 @@ class AdController extends Controller
                 'details' => $e->getMessage(),
             ], 500);
         }
-
     }
 
     public function deleteMyAdsById(int $adId): JsonResponse
@@ -271,7 +266,6 @@ class AdController extends Controller
 
         try {
             $ad = Ad::findOrFail($adId);
-
         } catch (ModelNotFoundException $e) {
             // Catch the error if ad is not found and return a custom JSON response
             return response()->json(['message' => ResponseMessages::ADS_NOT_FOUND], 404);
@@ -279,7 +273,6 @@ class AdController extends Controller
 
         try {
             $this->authorize('delete', $ad);
-
         } catch (\Throwable $e) {
             return response()->json(['message' => ResponseMessages::DELETE_AUTHORIZE_ERROR], 403);
         }
@@ -313,11 +306,49 @@ class AdController extends Controller
         return response()->json($ads, 200);
     }
 
-    public function getCities(): JsonResponse
+    public function getProvinces(): Collection
     {
-        return response()->json(City::all());
+        return Province::all();
     }
 
-    
 
+
+    public function getCities($id): JsonResponse
+    {
+
+        $validator = $this->validateProvinceId($id);
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        try {
+            $cities = City::where('province_id', $id)->get();
+
+            if ($cities->isEmpty()) {
+                return response()->json(['message' => ResponseMessages::CITY_NOT_FOUND], 404);
+            }
+
+            return response()->json($cities, 200);
+        } catch (\Exception $e) {
+            \Log::error('Error fetching cities: ' . $e->getMessage());
+
+            return response()->json(['error' => ResponseMessages::CITY_FETCH_ERROR], 500);
+        }
+    }
+
+    private function validateProvinceId($id){
+
+        return Validator::make(
+            ['id' => $id],
+            ['id' => 'required|integer|exists:provinces,id'],
+            [
+                'id.required' => 'شناسه استان الزامی است.',
+                'id.integer'  => 'شناسه استان باید عدد صحیح باشد.',
+                'id.exists'   => 'استان مورد نظر در سیستم ثبت نشده است.',
+            ]
+        );
+
+    }
 }
