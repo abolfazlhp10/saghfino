@@ -25,4 +25,16 @@ class RateRealEstateRequest extends FormRequest
             'real_estate_id' => ['required', 'exists:real_estates,id'],
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'rate.required'           => 'امتیاز الزامی است.',
+            'rate.integer'            => 'امتیاز باید یک عدد صحیح باشد.',
+            'rate.min'                => 'امتیاز نمیتواند کمتر از 0 باشد.',
+            'rate.max'                => 'امتیاز نمیتواند بیشتر از 5 باشد.',
+            'real_estate_id.required' => 'شناسه ملک الزامی است.',
+            'real_estate_id.exists'   => 'شناسه ملک انتخاب شده معتبر نیست.',
+        ];
+    }
 }

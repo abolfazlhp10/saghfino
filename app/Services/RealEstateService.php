@@ -66,11 +66,16 @@ class RealEstateService
     {
         try {
 
-            RealEstateRate::create([
-                'rate'           => $request->rate,
-                'user_id'        => auth()->user()->id,
-                'real_estate_id' => $request->real_estate_id,
-            ]);
+            RealEstateRate::updateOrCreate(
+                [
+                    'real_estate_id' => $request->real_estate_id,
+                    'user_id'        => auth()->user()->id,
+                ],
+                [
+                    'rate' => $request->rate,
+                ]
+            );
+            
 
             return 'true';
 

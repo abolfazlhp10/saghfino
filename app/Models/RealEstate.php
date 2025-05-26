@@ -12,6 +12,8 @@ class RealEstate extends Model
         'tagline',
         'city',
         'image',
+        'rate_count',
+        'rate_sum',
         'rate',
         'address',
     ];
