@@ -829,6 +829,55 @@ paths:
                   message:
                     type: string
 
+  /real-estates/rate:
+    post:
+      summary: Rate a real estate
+      operationId: rateRealEstate
+      tags:
+        - Ads
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - real_estate_id
+                - rate
+              properties:
+                real_estate_id:
+                  type: integer
+                  format: int64
+                  description: ID of the real estate to rate
+                rate:
+                  type: number
+                  minimum: 1
+                  maximum: 5
+                  description: Rating value from 1 to 5
+      responses:
+        '200':
+          description: Rating submitted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '404':
+          description: Real estate not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /provinces:
     get:
