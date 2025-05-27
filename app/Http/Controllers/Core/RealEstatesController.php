@@ -38,7 +38,7 @@ class RealEstatesController extends Controller
             return response()->json(['message' => ResponseMessages::NOT_FOUND]);
         }
 
-        return response()->json($agent);
+        return response()->json($agent->load(['realEstate']));
     }
 
     public function save(CreateRealEstateRequest $request)
