@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\DB;
 
 class RealEstateService
 {
@@ -62,27 +63,50 @@ class RealEstateService
         }
     }
 
-    public function saveRate($request): string
+     public function saveRate(object $request): bool
     {
-        try {
+        $userId = auth()->id();
+        $realEstateId = $request->real_estate_id;
+        $newRate = (int) $request->rate;
 
-            RealEstateRate::updateOrCreate(
-                [
-                    'real_estate_id' => $request->real_estate_id,
-                    'user_id'        => auth()->user()->id,
-                ],
-                [
-                    'rate' => $request->rate,
-                ]
+        DB::beginTransaction();
+
+        try {
+            $realEstate = RealEstate::findOrFail($realEstateId);
+
+            $existingRate = RealEstateRate::where('real_estate_id', $realEstateId)
+                ->where('user_id', $userId)
+                ->first();
+
+            $previousRateValue = $existingRate?->rate ?? 0;
+
+            $rate = RealEstateRate::updateOrCreate(
+                ['real_estate_id' => $realEstateId, 'user_id' => $userId],
+                ['rate' => $newRate]
             );
-            
+
+            if ($rate->wasRecentlyCreated) {
+                $realEstate->rate_count++;
+                $realEstate->rate_sum += $newRate;
+            } else {
+                $realEstate->rate_sum = $realEstate->rate_sum - $previousRateValue + $newRate;
+            }
+
+            $realEstate->rate = (int) ceil($realEstate->rate_sum / max($realEstate->rate_count, 1));
+            $realEstate->save();
+
+            DB::commit();
 
             return 'true';
-
         } catch (\Exception $e) {
-            Log::error('error in save the real estate rate : ', [$e->getMessage()]);
+            DB::rollBack();
+            Log::error('Failed to save real estate rate', [
+                'user_id' => $userId,
+                'real_estate_id' => $realEstateId,
+                'error' => $e->getMessage(),
+            ]);
+
             return 'false';
         }
-
     }
 }

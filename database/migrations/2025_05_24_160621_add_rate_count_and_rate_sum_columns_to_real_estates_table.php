@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::table('real_estates', function (Blueprint $table) {
             
-            $table->integer('rate_count')->nullable()->after('image');
-            $table->integer('rate_sum')->nullable()->after('rate_count');
+            $table->integer('rate_count')->default(0)->after('image');
+            $table->integer('rate_sum')->default(0)->after('rate_count');
 
         });
     }

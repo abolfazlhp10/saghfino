@@ -78,7 +78,7 @@ class RealEstatesController extends Controller
     {
         $result = $this->realEstateService->saveRate($request);
 
-        if ($result == 'false') {
+        if (!$result) {
 
             return response()->json(['message' => ResponseMessages::REAL_ESTATE_RATE_ERROR], Response::HTTP_INTERNAL_SERVER_ERROR);
 
