@@ -40,16 +40,16 @@ return [
             'driver'   => 'session',
             'provider' => 'users',
         ],
-        'sanctum' => [
-            'driver'   => 'sanctum',
-            'provider' => 'users',
-        ],
+        // 'sanctum' => [
+        //     'driver'   => 'sanctum',
+        //     'provider' => 'users',
+        // ],
 
-        'api'     => [
-            'driver'   => 'token',
-            'provider' => 'users',
-            'hash'     => false,
-        ],
+        // 'api'     => [
+        //     'driver'   => 'token',
+        //     'provider' => 'users',
+        //     'hash'     => false,
+        // ],
     ],
 
     /*
