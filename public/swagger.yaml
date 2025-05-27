@@ -142,6 +142,42 @@ components:
         token_expires_at:
           type: string
           format: date-time
+    RealEstate:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        agent_id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        tagline:
+          type: string
+        city:
+          type: string
+        image:
+          type: string
+          nullable: true
+        rate:
+          type: number
+          format: float
+          nullable: true
+        rate_count:
+          type: integer
+          default: 0
+        rate_sum:
+          type: integer
+          default: 0
+        address:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
 paths:
   /register:
     post:
@@ -189,6 +225,75 @@ paths:
                     type: string
                   errors:
                     type: object
+
+  /update-user-profile:
+    post:
+      summary: Update user profile information
+      operationId: updateUserProfile
+      tags:
+        - Auth
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                first_name:
+                  type: string
+                  description: User's first name
+                last_name:
+                  type: string
+                  description: User's last name
+                image:
+                  type: string
+                  format: binary
+                  description: User's profile image (max 4MB, formats:jpeg, png, jpg)
+            example:
+              first_name: John
+              last_name: Doe
+              image: (binary)
+      x-codeSamples:
+        - lang: curl
+          source: |
+            curl -X POST 'http://your-domain.com/api/update-user-profile' \
+            -H 'Authorization: Bearer your_jwt_token_here' \
+            -F 'first_name=John' \
+            -F 'last_name=Doe' \
+            -F 'image=@/path/to/your/image.jpg'
+      responses:
+        '200':
+          description: Profile updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  user:
+                    $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized - User not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
   /send-otp:
     post:
       summary: Send OTP to user's phone number
@@ -825,7 +930,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                type: object
+                properties:
+                  agent:
+                    $ref: '#/components/schemas/User'
+                  realEstate:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Ad'
         '404':
           description: Real estate agent not found
           content:
@@ -1200,6 +1312,75 @@ paths:
                   $ref: '#/components/schemas/Ad'
         '403':
           description: Unauthorized - User is not an admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /update-realestate-profile/{realestate}:
+    post:
+      summary: Update real estate profile information
+      operationId: updateRealEstateProfile
+      tags:
+        - Real Estates
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: realestate
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Name of the real estate
+                tagline:
+                  type: string
+                  description: Tagline or short description of the real estate
+                city:
+                  type: string
+                  description: City where the real estate is located
+                address:
+                  type: string
+                  description: Full address of the real estate
+                image:
+                  type: string
+                  format: binary
+                  description: Optional image file (max 4MB, formats:jpeg, png, jpg)
+      responses:
+        '200':
+          description: Real estate profile updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  real_estate:
+                    $ref: '#/components/schemas/RealEstate'
+        '401':
+          description: Unauthorized - User not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
           content:
             application/json:
               schema:
