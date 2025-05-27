@@ -21,7 +21,7 @@ class AdFactory extends Factory
         $mortgagePrice = $transactionType === 'rent' ? $this->faker->numberBetween(100000000, 500000000) : null;
 
         return [
-            'user_id' => 2,
+            'user_id' => 1,
             'title' => $this->faker->sentence(3),
             'description' => $this->faker->paragraph(3),
             'address' => $this->faker->address(),
@@ -29,7 +29,7 @@ class AdFactory extends Factory
             'floor' => $this->faker->numberBetween(0, 20),
             'number_of_floors' => $this->faker->numberBetween(1, 30),
             'rooms' => $this->faker->numberBetween(1, 5),
-            'city' => $this->faker->randomElement(['tehran', 'mashhad', 'isfahan', 'shiraz', 'tabriz']),
+            'city' => $this->faker->randomElement(['تهران', 'مشهد', 'اصفهان', 'شیراز', 'تبریز']),
             'type_of_wc' => $this->faker->randomElement(['farangi', 'wc', 'both']),
             'elevator' => $this->faker->boolean(70), // 70% chance of having elevator
             'parking' => $this->faker->boolean(80), // 80% chance of having parking
