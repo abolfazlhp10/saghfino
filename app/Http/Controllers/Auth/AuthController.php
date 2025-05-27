@@ -121,9 +121,7 @@ class AuthController extends Controller
 
     public function updateUserProfile(UserEditRequest $request)
     {
-        $user = User::findOrFail($request->user_id);
-
-        $this->authorize('update', $user);
+        $user = auth()->user();
 
         try {
 
