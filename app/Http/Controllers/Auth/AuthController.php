@@ -1,20 +1,26 @@
 <?php
-
 namespace App\Http\Controllers\Auth;
 
 use App\Classes\ResponseMessages;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\PhoneNumberRequest;
+use App\Http\Requests\Auth\UserEditRequest;
 use App\Http\Requests\Auth\UserRegisterRequest;
 use App\Http\Requests\Auth\VerifyOtpRequest;
 use App\Models\Otp;
 use App\Models\User;
 use App\SMS\FarazSmsService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Role;
 
 class AuthController extends Controller
 {
+
+    use AuthorizesRequests;
+
     private $farazSmsService;
     private $isTestMode;
 
@@ -104,12 +110,65 @@ class AuthController extends Controller
             'firstName'   => $request->first_name,
             'lastName'    => $request->last_name,
             'phoneNumber' => $request->phone_number,
-            'image'       => $request->hasFile('image') ? $request->file('image')->store('users', 'public') : null
+            'image'       => $request->hasFile('image') ? $request->file('image')->store('users', 'public') : null,
 
         ]);
 
         $user->assignRole($request->role);
 
         return $user;
+    }
+
+    public function updateUserProfile(UserEditRequest $request)
+    {
+        $user = User::findOrFail($request->user_id);
+
+        $this->authorize('update', $user);
+
+        try {
+
+            $data = $request->only(['first_name', 'last_name']);
+
+            $data['firstName'] = $data['first_name'];
+            $data['lastName']  = $data['last_name'];
+
+            if ($request->hasFile('image')) {
+
+                $data['image'] = $this->updateUserImage($user, $request->file('image'));
+            }
+
+            $user->fill($data);
+
+            $user->save();
+
+            return response()->json(
+                [
+                    'message' => ResponseMessages::USER_PROFILE_UPDATED_SUCCESS,
+                    'user'    => $user->fresh(),
+                ], 200);
+
+        } catch (\Exception $e) {
+            Log::error('error in updating the user profile : ', [$e->getMessage()]);
+            return response()->json(['message' => ResponseMessages::USER_PROFILE_UPDATED_ERROR], 500);
+        }
+
+    }
+
+    private function updateUserImage($user, $newImage)
+    {
+
+        $newImagePath = $newImage->store('users/images');
+
+        if ($user->image && Storage::exists($user->image)) {
+            Storage::delete($user->image);
+        }
+
+        return $newImagePath;
+
+    }
+
+    public function updateRealEstateProfile()
+    {
+
     }
 }
