@@ -26,5 +26,7 @@ class ResponseMessages
     const CITY_NOT_FOUND               = 'شهری یافت نشد';
     const CITY_FETCH_ERROR             = "خطا در دریافت اطلاعات شهرها !";
     const USER_PROFILE_UPDATED_SUCCESS = "اطلاعات پروفایل شما با موفقیت آپدیت گردید";
-    const USER_PROFILE_UPDATED_ERROR   = "ارور در آپدیت اطلاعات !";
+    const PROFILE_UPDATED_ERROR   = "ارور در آپدیت اطلاعات !";
+    const REALESTATE_PROFILE_UPDATED_SUCCESS = "اطلاعات پروفایل املاک شما با موفقیت آپدیت گردید";
+
 }

@@ -7,7 +7,9 @@ use App\Http\Requests\Auth\PhoneNumberRequest;
 use App\Http\Requests\Auth\UserEditRequest;
 use App\Http\Requests\Auth\UserRegisterRequest;
 use App\Http\Requests\Auth\VerifyOtpRequest;
+use App\Http\Requests\Core\RealEstateEditRequest;
 use App\Models\Otp;
+use App\Models\RealEstate;
 use App\Models\User;
 use App\SMS\FarazSmsService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -132,7 +134,7 @@ class AuthController extends Controller
 
             if ($request->hasFile('image')) {
 
-                $data['image'] = $this->updateUserImage($user, $request->file('image'));
+                $data['image'] = $this->updateModelImage($user, $request->file('image'), 'users/images');
             }
 
             $user->fill($data);
@@ -147,26 +149,47 @@ class AuthController extends Controller
 
         } catch (\Exception $e) {
             Log::error('error in updating the user profile : ', [$e->getMessage()]);
-            return response()->json(['message' => ResponseMessages::USER_PROFILE_UPDATED_ERROR], 500);
+            return response()->json(['message' => ResponseMessages::PROFILE_UPDATED_ERROR], 500);
         }
 
     }
 
-    private function updateUserImage($user, $newImage)
+    public function updateRealEstateProfile(RealEstateEditRequest $request, RealEstate $realestate)
+    {
+        $this->authorize('edit', $realestate);
+
+        try {
+
+            $data = $request->validated();
+
+            if ($request->hasFile('image')) {
+                $data['image'] = $this->updateModelImage($realestate, $request->file('image'), 'realestates/images');
+            }
+
+            $realestate->fill($data);
+
+            $realestate->save();
+
+            return response()->json(['message' => ResponseMessages::REALESTATE_PROFILE_UPDATED_SUCCESS,
+                'realestate'                       => $realestate->fresh()], 200);
+
+        } catch (\Exception $e) {
+            Log::error('error in updating realestate profile : ', [$e->getMessage()]);
+            return response()->json(['message' => ResponseMessages::PROFILE_UPDATED_ERROR], 500);
+        }
+
+    }
+
+    private function updateModelImage($model, $newImage, $path)
     {
 
-        $newImagePath = $newImage->store('users/images');
+        $newImagePath = $newImage->store($path);
 
-        if ($user->image && Storage::exists($user->image)) {
-            Storage::delete($user->image);
+        if ($model->image && Storage::exists($model->image)) {
+            Storage::delete($model->image);
         }
 
         return $newImagePath;
-
-    }
-
-    public function updateRealEstateProfile()
-    {
 
     }
 }

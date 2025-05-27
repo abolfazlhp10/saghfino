@@ -21,7 +21,6 @@ class UserEditRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id'    => ['required', 'exists:users,id'],
             'first_name' => ['required', 'string', 'max:255'],
             'last_name'  => ['required', 'string', 'max:255'],
             'image'      => ['nullable', 'image', 'mimes:png,jpg,jpeg', 'max:4096'],
@@ -30,9 +29,6 @@ class UserEditRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'user_id.required'     => 'شناسه کاربر الزامی است.',
-            'user_id.exists'       => 'شناسه کاربر نامعتبر است یا وجود ندارد.',
-    
             'first_name.required'  => 'وارد کردن نام الزامی است.',
             'first_name.string'    => 'نام باید فقط شامل حروف باشد.',
             'first_name.max'       => 'نام نباید بیش از ۲۵۵ کاراکتر باشد.',

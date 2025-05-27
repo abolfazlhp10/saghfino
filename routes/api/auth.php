@@ -11,5 +11,5 @@ Route::post('register', [AuthController::class, 'register']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('update-user-profile', [AuthController::class, 'updateUserProfile']);
-    Route::post('update-realestate-profile', [AuthController::class, 'updateRealEstateProfile']);
+    Route::post('update-realestate-profile/{realestate}', [AuthController::class, 'updateRealEstateProfile']);
 });
