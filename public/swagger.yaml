@@ -789,7 +789,7 @@ paths:
       summary: Get list of all real estate agents
       operationId: getRealEstateAgents
       tags:
-        - Ads
+        - Real Estates
       responses:
         '200':
           description: List of real estate agents
@@ -799,12 +799,19 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/User'
+        '404':
+          description: No real estate agents found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
   /real-estate-agents/{agent_id}:
     get:
       summary: Get details of a specific real estate agent
       operationId: getRealEstateAgentById
       tags:
-        - Ads
+        - Real Estates
       parameters:
         - name: agent_id
           in: path
@@ -824,17 +831,164 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
+                $ref: '#/components/schemas/Error'
+
+  /real-estates:
+    get:
+      summary: Get all real estates
+      operationId: getAllRealEstates
+      tags:
+        - Real Estates
+      responses:
+        '200':
+          description: List of all real estates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Ad'
+        '404':
+          description: No real estates found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /real-estates/{id}:
+    get:
+      summary: Get details of a specific real estate
+      operationId: getRealEstateById
+      tags:
+        - Real Estates
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Real estate details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ad'
+        '404':
+          description: Real estate not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /real-estates/create:
+   post:
+    summary: Create a new real estate
+    operationId: createRealEstate
+    tags:
+      - Real Estates
+    security:
+      - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            required:
+              - name
+              - tagline
+              - city
+              - address
+            properties:
+              name:
+                type: string
+                description: Name of the real estate
+                maxLength: 255
+              tagline:
+                type: string
+                description: Tagline or short description of the real estate
+                maxLength: 255
+              city:
+                type: string
+                description: City where the real estate is located
+                maxLength: 255
+              address:
+                type: string
+                description: Full address of the real estate
+                maxLength: 500
+              image:
+                type: string
+                format: binary
+                description: Optional image file(max 2MB) , format:jpeg,png,jpg
+    responses:
+      '201':
+        description: Real estate listing created successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  description: Success message
+                real_estate:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      format: int64
+                    agent_id:
+                      type: integer
+                      format: int64
+                    name:
+                      type: string
+                    tagline:
+                      type: string
+                    city:
+                      type: string
+                    image:
+                      type: string
+                      nullable: true
+                    rate:
+                      type: number
+                      format: float
+                      nullable: true
+                    rate_count:
+                      type: integer
+                      default: 0
+                    rate_sum:
+                      type: integer
+                      default: 0
+                    address:
+                      type: string
+                    created_at:
+                      type: string
+                      format: date-time
+                    updated_at:
+                      type: string
+                      format: date-time
+      '422':
+        description: Validation error
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Error'
+      '500':
+        description: Server error
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Error'
+
 
   /real-estates/rate:
     post:
       summary: Rate a real estate
       operationId: rateRealEstate
       tags:
-        - Ads
+        - Real Estates
       security:
         - bearerAuth: []
       requestBody:
@@ -874,35 +1028,6 @@ paths:
                 $ref: '#/components/schemas/Error'
         '422':
           description: Validation error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
-  /admin/dashboard/ads-users-counts:
-    get:
-      summary: Get counts of ads and users for admin dashboard
-      operationId: getDashboardCounts
-      tags:
-        - Admin
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Successfully retrieved counts
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  ads_count:
-                    type: integer
-                    description: Total number of ads
-                  users_count:
-                    type: integer
-                    description: Total number of users
-        '403':
-          description: Unauthorized - User is not an admin
           content:
             application/json:
               schema:
@@ -978,3 +1103,104 @@ paths:
                 properties:
                   message:
                     type: string
+
+  /admin/dashboard/ads-users-counts:
+    get:
+      summary: Get counts of ads and users for admin dashboard
+      operationId: getDashboardCounts
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successfully retrieved counts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ads_count:
+                    type: integer
+                    description: Total number of ads
+                  users_count:
+                    type: integer
+                    description: Total number of users
+        '403':
+          description: Unauthorized - User is not an admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /admin/dashboard/users:
+    get:
+      summary: Get all users
+      operationId: getAllUsers
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successfully retrieved all users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '403':
+          description: Unauthorized - User is not an admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /admin/dashboard/agents:
+    get:
+      summary: Get all real estate agents
+      operationId: getAllAgents
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successfully retrieved all real estate agents
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '403':
+          description: Unauthorized - User is not an admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /admin/dashboard/real-estates:
+    get:
+      summary: Get all real estates
+      operationId: getRealEstates
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successfully retrieved all real estate advertisements
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Ad'
+        '403':
+          description: Unauthorized - User is not an admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
