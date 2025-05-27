@@ -21,7 +21,7 @@ class RealEstateService
         return $real_estate_agents;
     }
 
-    public function getRealEstateAgentById($agent_id): Collection | null
+    public function getRealEstateAgentById($agent_id): User
     {
 
         $agent = User::where('id', $agent_id)
