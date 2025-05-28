@@ -311,44 +311,9 @@ class AdController extends Controller
         return Province::all();
     }
 
-
-
-    public function getCities($id): JsonResponse
+    public function getCities(Province $province): Collection
     {
-
-        $validator = $this->validateProvinceId($id);
-        if ($validator->fails()) {
-            return response()->json([
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
-        try {
-            $cities = City::where('province_id', $id)->get();
-
-            if ($cities->isEmpty()) {
-                return response()->json(['message' => ResponseMessages::CITY_NOT_FOUND], 404);
-            }
-
-            return response()->json($cities, 200);
-        } catch (\Exception $e) {
-            \Log::error('Error fetching cities: ' . $e->getMessage());
-
-            return response()->json(['error' => ResponseMessages::CITY_FETCH_ERROR], 500);
-        }
+        return $province->cities()->get();
     }
 
-    private function validateProvinceId($id){
-
-        return Validator::make(
-            ['id' => $id],
-            ['id' => 'required|integer|exists:provinces,id'],
-            [
-                'id.required' => 'شناسه استان الزامی است.',
-                'id.integer'  => 'شناسه استان باید عدد صحیح باشد.',
-                'id.exists'   => 'استان مورد نظر در سیستم ثبت نشده است.',
-            ]
-        );
-
-    }
 }

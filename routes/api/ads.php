@@ -12,7 +12,7 @@ Route::get('ad/show/{ad}', [AdController::class, 'show']);
 
 Route::get('provinces', [AdController::class, 'getProvinces']);
 
-Route::get('provinces/{id}', [AdController::class, 'getCities']);
+Route::get('provinces/{province}', [AdController::class, 'getCities']);
 
 Route::middleware('auth:sanctum')->group(function () {
 

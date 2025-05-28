@@ -1146,14 +1146,14 @@ paths:
                     updated_at:
                       type: string
                       format: date-time
-  /provinces/{id}:
+  /provinces/{province_id}:
     get:
       summary: Get list of cities for a specific province
       operationId: getCitiesByProvince
       tags:
         - Ads
       parameters:
-        - name: id
+        - name: province_id
           in: path
           required: true
           schema:
