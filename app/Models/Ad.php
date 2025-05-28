@@ -3,6 +3,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 class Ad extends Model
 {
@@ -113,6 +114,16 @@ class Ad extends Model
     public function scopeMaxPrice($query, $tr_type, $maxPrice)
     {
         return $maxPrice ? $query->where($tr_type . '' . "_price", '<=', $maxPrice) : $query;
+    }
+
+    public function getCreatedAtAttribute($value)
+    {
+        return Carbon::parse($value)->locale('fa')->diffForHumans();
+    }
+
+    public function getUpdatedAtAttribute($value)
+    {
+        return Carbon::parse($value)->locale('fa')->diffForHumans();
     }
 
 }
