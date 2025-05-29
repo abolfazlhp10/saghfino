@@ -496,13 +496,22 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Ad'
+                type: object
+                properties:
+                  ad:
+                    $ref: '#/components/schemas/Ad'
+                  is_saved:
+                    type: integer
+                    enum: [0, 1]
+                    description: Indicates if the ad is saved by the user (0 = not saved, 1 = saved)
         '404':
           description: Ad not found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
   /new-advertisement:
     post:
       summary: Create a new advertisement
