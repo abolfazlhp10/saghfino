@@ -303,7 +303,7 @@ class AdController extends Controller
             ->TypeOfWc($request->typeOfWc)
             ->get();
 
-        return response()->json($ads, 200);
+        return response()->json($ads->load(['images']), 200);
     }
 
     public function getProvinces(): Collection
