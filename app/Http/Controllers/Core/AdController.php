@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\Core;
 
 use App\Classes\ResponseMessages;
@@ -11,7 +10,6 @@ use App\Models\City;
 use App\Models\Province;
 use App\Models\User;
 use App\Services\AdService;
-use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
@@ -19,7 +17,6 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
 
 class AdController extends Controller
 {
@@ -27,7 +24,12 @@ class AdController extends Controller
 
     const DEFAULT_PAGINATION = 20;
 
-    public function __construct(private readonly AdService $adService) {}
+    private $user;
+
+    public function __construct(private readonly AdService $adService)
+    {
+        $this->user = Auth::user();
+    }
 
     /**
      * Get the authenticated user
@@ -123,6 +125,11 @@ class AdController extends Controller
      */
     public function show(Ad $ad): JsonResponse
     {
+        
+        $is_saved = DB::table('user_ad')->where('user_id', $this->user->id)->where('ad_id', $ad->id)->exists();
+
+        $ad->is_saved = $is_saved ? 1 : 0;
+
         return response()->json($ad->load(['user', 'images']), 200);
     }
 

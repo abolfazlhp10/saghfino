@@ -8,8 +8,6 @@ Route::get('ads', [AdController::class, 'index']);
 
 Route::get('ads/filter', [AdController::class, 'adsFilter']);
 
-Route::get('ad/show/{ad}', [AdController::class, 'show']);
-
 Route::get('provinces', [AdController::class, 'getProvinces']);
 
 Route::get('provinces/{province}', [AdController::class, 'getCities']);
@@ -34,6 +32,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::delete('my-ads/{ad}',[AdController::class,'deleteMyAdsById']);
 
+    Route::get('ad/show/{ad}', [AdController::class, 'show']);
     
 });
 
