@@ -1368,3 +1368,66 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+
+  /admin/dashboard/ads:
+    get:
+      summary: Get all advertisements (Admin only)
+      operationId: getAllAds
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successfully retrieved all advertisements
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Ad'
+        '403':
+          description: Unauthorized - User is not an admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /admin/dashboard/ads/{ad}:
+    delete:
+      summary: Delete an advertisement (Admin only)
+      operationId: deleteAd
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: ad
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: ID of the advertisement to delete
+      responses:
+        '200':
+          description: Advertisement deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '403':
+          description: Unauthorized - User is not an admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Advertisement not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
