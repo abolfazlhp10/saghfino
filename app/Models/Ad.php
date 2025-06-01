@@ -1,6 +1,7 @@
 <?php
 namespace App\Models;
 
+use App\Models\Scopes\ActiveAdScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
@@ -27,6 +28,7 @@ class Ad extends Model
         'sell_price',
         'rent_price',
         'mortgage_price',
+        'status'
     ];
 
     public function user()
@@ -126,4 +128,8 @@ class Ad extends Model
         return Carbon::parse($value)->locale('fa')->diffForHumans();
     }
 
+    protected static function booted()
+    {
+        static::addGlobalScope(new ActiveAdScope());
+    }    
 }

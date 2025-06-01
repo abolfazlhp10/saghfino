@@ -14,7 +14,7 @@ class AdminController extends Controller
 {
     public function getCounts(): JsonResponse
     {
-        $adsCount = Ad::count();
+        $adsCount = Ad::withoutGlobalScopes()->count();;
         $usersCount=User::count();
 
         $counts=[
