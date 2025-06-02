@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers\Auth;
 
+use App\Actions\RealesateUpdateAction;
 use App\Actions\UserCreateAction;
 use App\Actions\UserUpdateAction;
 use App\Classes\ResponseMessages;
@@ -132,40 +133,4 @@ class AuthController extends Controller
 
     }
 
-    public function updateRealEstateProfile(RealEstateEditRequest $request, RealEstate $realestate)
-    {
-
-        try {
-            $data = $request->validated();
-
-            if ($request->hasFile('image')) {
-                $data['image'] = $this->updateModelImage($realestate, $request->file('image'), 'realestates/images');
-            }
-
-            $realestate->fill($data);
-
-            $realestate->save();
-
-            return response()->json(['message' => ResponseMessages::REALESTATE_PROFILE_UPDATED_SUCCESS,
-                'realestate'                       => $realestate->fresh()], 200);
-
-        } catch (\Exception $e) {
-            Log::error('error in updating realestate profile : ', [$e->getMessage()]);
-            return response()->json(['message' => ResponseMessages::PROFILE_UPDATED_ERROR], 500);
-        }
-
-    }
-
-    private function updateModelImage($model, $newImage, $path)
-    {
-
-        $newImagePath = $newImage->store($path);
-
-        if ($model->image && Storage::exists($model->image)) {
-            Storage::delete($model->image);
-        }
-
-        return $newImagePath;
-
-    }
 }

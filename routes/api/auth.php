@@ -9,7 +9,4 @@ Route::post('verify-otp', [AuthController::class, 'verifyOtp'])->middleware('thr
 
 Route::post('register', [AuthController::class, 'register']);
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('update-user-profile', [AuthController::class, 'updateUserProfile']);
-    Route::post('update-realestate-profile/{realestate}', [AuthController::class, 'updateRealEstateProfile']);
-});
+Route::post('update-user-profile', [AuthController::class, 'updateUserProfile'])->middleware('auth:sanctum');

@@ -1300,7 +1300,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /update-realestate-profile/{realestate}:
+  /real-estates/update/{realestate}:
     post:
       summary: Update real estate profile information
       operationId: updateRealEstateProfile

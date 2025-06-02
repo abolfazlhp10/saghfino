@@ -11,7 +11,7 @@ class RealEstateEditRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        $realestate = $this->route('realesate');
+        $realestate = $this->route('realestate');
         return Auth::user()->can('edit', $realestate);
     }
 

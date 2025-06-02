@@ -1,16 +1,18 @@
 <?php
 namespace App\Http\Controllers\Core;
 
+use App\Actions\RealesateUpdateAction;
 use App\Classes\ResponseMessages;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Core\CreateRealEstateRequest;
 use App\Http\Requests\Core\RateRealEstateRequest;
+use App\Http\Requests\Core\RealEstateEditRequest;
 use App\Models\RealEstate;
 use App\Services\RealEstateService;
-use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
 class RealEstatesController extends Controller
@@ -69,12 +71,34 @@ class RealEstatesController extends Controller
     {
         $result = $this->realEstateService->saveRate($request);
 
-        if (!$result) {
+        if (! $result) {
 
             return response()->json(['message' => ResponseMessages::REAL_ESTATE_RATE_ERROR], Response::HTTP_INTERNAL_SERVER_ERROR);
 
         }
 
         return response()->json(['message' => ResponseMessages::REAL_ESTATE_RATE_ADDED], Response::HTTP_OK);
+    }
+
+    public function updateRealEstateProfile(RealEstateEditRequest $request,RealEstate $realestate,RealesateUpdateAction $realesateUpdateAction): JsonResponse 
+    {
+        try {
+            $updatedRealEstate = $realesateUpdateAction->execute($request, $realestate);
+
+            return response()->json([
+                'message'    => ResponseMessages::REALESTATE_PROFILE_UPDATED_SUCCESS,
+                'realestate' => $updatedRealEstate->fresh(),
+            ], 200);
+
+        } catch (\Throwable $e) {
+            Log::error('Error updating real estate profile: ', [
+                'message' => $e->getMessage(),
+                'trace'   => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'message' => ResponseMessages::PROFILE_UPDATED_ERROR,
+            ], 500);
+        }
     }
 }
