@@ -1,6 +1,8 @@
 <?php
 namespace App\Http\Controllers\Auth;
 
+use App\Actions\UserCreateAction;
+use App\Actions\UserUpdateAction;
 use App\Classes\ResponseMessages;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\PhoneNumberRequest;
@@ -103,50 +105,29 @@ class AuthController extends Controller
         }
     }
 
-    public function register(UserRegisterRequest $request): User
+    public function register(UserRegisterRequest $request, UserCreateAction $userCreateAction): User
     {
-        $user = User::create([
-            'firstName'   => $request->first_name,
-            'lastName'    => $request->last_name,
-            'phoneNumber' => $request->phone_number,
-            'image'       => $request->hasFile('image') ? $request->file('image')->store('users', 'public') : null,
-
-        ]);
-
-        $user->assignRole($request->role);
+        $user = $userCreateAction->execute($request, $request->role);
 
         return $user;
     }
 
-    public function updateUserProfile(UserEditRequest $request)
+    public function updateUserProfile(UserEditRequest $request, UserUpdateAction $userUpdateAction): JsonResponse
     {
-        $user = auth()->user();
-
         try {
+            $user = $userUpdateAction->execute($request);
 
-            $data = $request->only(['first_name', 'last_name']);
+            return response()->json([
+                'message' => ResponseMessages::USER_PROFILE_UPDATED_SUCCESS,
+                'user'    => $user->fresh(),
+            ], 200);
 
-            $data['firstName'] = $data['first_name'];
-            $data['lastName']  = $data['last_name'];
+        } catch (\Throwable $e) { 
+            Log::error('Error updating user profile:', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
 
-            if ($request->hasFile('image')) {
-
-                $data['image'] = $this->updateModelImage($user, $request->file('image'), 'users/images');
-            }
-
-            $user->fill($data);
-
-            $user->save();
-
-            return response()->json(
-                [
-                    'message' => ResponseMessages::USER_PROFILE_UPDATED_SUCCESS,
-                    'user'    => $user->fresh(),
-                ], 200);
-
-        } catch (\Exception $e) {
-            Log::error('error in updating the user profile : ', [$e->getMessage()]);
-            return response()->json(['message' => ResponseMessages::PROFILE_UPDATED_ERROR], 500);
+            return response()->json([
+                'message' => ResponseMessages::PROFILE_UPDATED_ERROR,
+            ], 500);
         }
 
     }
