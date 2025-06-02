@@ -3,6 +3,8 @@
 namespace App\Http\Requests\Core;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
+use App\Models\RealEstate;
 
 class CreateRealEstateRequest extends FormRequest
 {
@@ -11,7 +13,8 @@ class CreateRealEstateRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return Auth::user()->can('create', RealEstate::class);
+
     }
 
     /**

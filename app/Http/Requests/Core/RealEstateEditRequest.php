@@ -2,6 +2,7 @@
 namespace App\Http\Requests\Core;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class RealEstateEditRequest extends FormRequest
 {
@@ -10,7 +11,8 @@ class RealEstateEditRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        $realestate = $this->route('realesate');
+        return Auth::user()->can('edit', $realestate);
     }
 
     /**

@@ -9,15 +9,12 @@ use App\Models\RealEstate;
 use App\Services\RealEstateService;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class RealEstatesController extends Controller
 {
-
-    use AuthorizesRequests;
 
     public function __construct(private readonly RealEstateService $realEstateService)
     {}
@@ -43,12 +40,6 @@ class RealEstatesController extends Controller
 
     public function save(CreateRealEstateRequest $request)
     {
-        try {
-            $this->authorize('create', RealEstate::class);
-        } catch (Exception $e) {
-            return response()->json(['message' => 'Unauthorize action ! '], Response::HTTP_UNAUTHORIZED);
-        }
-
         $result = $this->realEstateService->createNewRealEstate($request);
 
         if ($result) {

@@ -12,7 +12,6 @@ use App\Models\Otp;
 use App\Models\RealEstate;
 use App\Models\User;
 use App\SMS\FarazSmsService;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -20,8 +19,6 @@ use Spatie\Permission\Models\Role;
 
 class AuthController extends Controller
 {
-
-    use AuthorizesRequests;
 
     private $farazSmsService;
     private $isTestMode;
@@ -156,10 +153,8 @@ class AuthController extends Controller
 
     public function updateRealEstateProfile(RealEstateEditRequest $request, RealEstate $realestate)
     {
-        $this->authorize('edit', $realestate);
 
         try {
-
             $data = $request->validated();
 
             if ($request->hasFile('image')) {
