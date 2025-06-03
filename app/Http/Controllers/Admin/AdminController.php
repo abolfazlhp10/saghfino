@@ -13,6 +13,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class AdminController extends Controller
 {
@@ -70,6 +71,22 @@ class AdminController extends Controller
         } catch (Exception $e) {
             Log::info("error in deleting the ad : ", [$e->getMessage()]);
             return response()->json(ResponseMessages::DELETE_ERROR, 500);
+        }
+    }
+
+    public function changeAdStatus(Ad $ad): JsonResponse
+    {
+        try {
+
+            $newStatus = $ad->status === 1 ? 0 : 1;
+
+            $ad->update(['status' => $newStatus]);
+
+            return response()->json(['message' => ResponseMessages::ADS_STATUS_UPDATED, 'ad' => $ad->fresh()], 200);
+
+        } catch (Throwable $th) {
+            Log::error('admin changed ad status failed : '.$th->getMessage());
+            return response()->json(['message' => ResponseMessages::ADS_STATUS_ERROR], 500);
         }
     }
 }

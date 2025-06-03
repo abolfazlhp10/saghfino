@@ -18,4 +18,5 @@ Route::prefix('admin/dashboard')->middleware(['auth:sanctum','isAdmin'])->group(
 
     Route::delete('ads/{ad_id}',[AdminController::class,'deleteAd']);
     
+    Route::post('ads/change-status/{ad}',[AdminController::class,'changeAdStatus']);
 });

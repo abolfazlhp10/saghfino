@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Classes;
 
 class ResponseMessages
@@ -28,5 +29,6 @@ class ResponseMessages
     const USER_PROFILE_UPDATED_SUCCESS = "اطلاعات پروفایل شما با موفقیت آپدیت گردید";
     const PROFILE_UPDATED_ERROR   = "ارور در آپدیت اطلاعات !";
     const REALESTATE_PROFILE_UPDATED_SUCCESS = "اطلاعات پروفایل املاک شما با موفقیت آپدیت گردید";
-
+    const ADS_STATUS_UPDATED = "وضعیت آگهی با موفقیت تغییر یافت ";
+    const ADS_STATUS_ERROR = "حطا در تغییر وضعیت آگهی !";
 }

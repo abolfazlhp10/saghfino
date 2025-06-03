@@ -1431,3 +1431,50 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+
+  /admin/dashboard/ads/change-status/{ad}:
+    post:
+      summary: Change advertisement status (Admin only)
+      operationId: changeAdStatus
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: ad
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: ID of the advertisement to change status
+      responses:
+        '200':
+          description: Advertisement status changed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  ad:
+                    $ref: '#/components/schemas/Ad'
+        '403':
+          description: Unauthorized - User is not an admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Advertisement not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
