@@ -142,6 +142,10 @@ components:
         token_expires_at:
           type: string
           format: date-time
+        active_ads:
+          oneOf:
+          - type: integer
+          - type: "null"
     RealEstate:
       type: object
       properties:

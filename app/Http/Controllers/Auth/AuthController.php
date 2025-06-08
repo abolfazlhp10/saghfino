@@ -1,7 +1,7 @@
 <?php
+
 namespace App\Http\Controllers\Auth;
 
-use App\Actions\RealesateUpdateAction;
 use App\Actions\UserCreateAction;
 use App\Actions\UserUpdateAction;
 use App\Classes\ResponseMessages;
@@ -10,15 +10,12 @@ use App\Http\Requests\Auth\PhoneNumberRequest;
 use App\Http\Requests\Auth\UserEditRequest;
 use App\Http\Requests\Auth\UserRegisterRequest;
 use App\Http\Requests\Auth\VerifyOtpRequest;
-use App\Http\Requests\Core\RealEstateEditRequest;
 use App\Models\Otp;
-use App\Models\RealEstate;
 use App\Models\User;
 use App\SMS\FarazSmsService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
-use Spatie\Permission\Models\Role;
+use App\Models\Ad;
 
 class AuthController extends Controller
 {
@@ -92,6 +89,10 @@ class AuthController extends Controller
             $token     = $user->createToken('user');
             $expiresAt = now()->addMinutes(config('sanctum.expiration'));
 
+            if ($user->hasRole('real_estate_agent')) {
+                $active_ads = $user->ads()->count();
+            }
+
             return response()->json([
                 'firstName'        => $user->firstName,
                 'lastName'         => $user->lastName,
@@ -99,10 +100,11 @@ class AuthController extends Controller
                 'image'            => $user->image,
                 'role'             => $user->roles->first()->name,
                 'token'            => $token->plainTextToken,
+                'active_ads'       => $active_ads ?? null,
                 'token_expires_at' => $expiresAt,
             ], 200);
         } else {
-            return response()->json(['message' => 'The code is false'], 404);
+            return response()->json(['message' => ResponseMessages::OTP_IS_FALSE], 404);
         }
     }
 
@@ -122,15 +124,12 @@ class AuthController extends Controller
                 'message' => ResponseMessages::USER_PROFILE_UPDATED_SUCCESS,
                 'user'    => $user->fresh(),
             ], 200);
-
-        } catch (\Throwable $e) { 
+        } catch (\Throwable $e) {
             Log::error('Error updating user profile:', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
 
             return response()->json([
                 'message' => ResponseMessages::PROFILE_UPDATED_ERROR,
             ], 500);
         }
-
     }
-
 }
