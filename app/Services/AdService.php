@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services;
 
 use App\Models\Ad;
@@ -137,7 +138,6 @@ class AdService
             DB::commit();
 
             return true;
-
         } catch (\Exception $e) {
             DB::rollBack();
             throw $e; // Rethrow the exception to be caught by the calling function
@@ -172,4 +172,20 @@ class AdService
         return $real_estate_agents;
     }
 
+    public function prepareAdForShow(Ad $ad): Ad
+    {
+        $ad->load(['user', 'images']);
+
+        $ad->loadCount('savedByUsers');
+
+        if (request()->bearerToken()) {
+            $isSaved = $ad->savedByUsers()->where('user_id', Auth::guard('sanctum')->user()->id)->exists();
+        } else {
+            $isSaved = false;
+        }
+
+        $ad->is_saved = $isSaved;
+
+        return $ad;
+    }
 }

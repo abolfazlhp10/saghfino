@@ -12,6 +12,8 @@ Route::get('provinces', [AdController::class, 'getProvinces']);
 
 Route::get('provinces/{province}', [AdController::class, 'getCities']);
 
+Route::get('ad/show/{ad}', [AdController::class, 'show']);
+
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('new-advertisement', [AdController::class, 'store']);
@@ -31,8 +33,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('my-ads',[AdController::class,'deleteAllMyAds']);
 
     Route::delete('my-ads/{ad}',[AdController::class,'deleteMyAdsById']);
-
-    Route::get('ad/show/{ad}', [AdController::class, 'show']);
     
 });
 

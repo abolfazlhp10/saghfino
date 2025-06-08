@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Core;
 
 use App\Classes\ResponseMessages;
@@ -125,12 +126,10 @@ class AdController extends Controller
      */
     public function show(Ad $ad): JsonResponse
     {
-        
-        $is_saved = DB::table('user_ad')->where('user_id', $this->user->id)->where('ad_id', $ad->id)->exists();
 
-        $ad->is_saved = $is_saved ? 1 : 0;
+        $ad = $this->adService->prepareAdForShow($ad);
 
-        return response()->json($ad->load(['user', 'images']), 200);
+        return response()->json($ad, 200);
     }
 
     /**
@@ -322,5 +321,4 @@ class AdController extends Controller
     {
         return $province->cities()->get();
     }
-
 }

@@ -508,6 +508,8 @@ paths:
                     type: integer
                     enum: [0, 1]
                     description: Indicates if the ad is saved by the user (0 = not saved, 1 = saved)
+                  saved_by_users_count:
+                    type: integer
         '404':
           description: Ad not found
           content:
