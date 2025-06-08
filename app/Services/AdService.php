@@ -174,18 +174,18 @@ class AdService
 
     public function prepareAdForShow(Ad $ad): Ad
     {
-        $ad->load(['user', 'images']);
+        $ad->load(['user', 'images'])
+        ->loadCount('savedByUsers');
 
-        $ad->loadCount('savedByUsers');
+        $ad->is_saved = request()->bearerToken() ? $ad->savedByUsers()->where('user_id', Auth::guard('sanctum')->user()->id)->exists() : false;
 
-        if (request()->bearerToken()) {
-            $isSaved = $ad->savedByUsers()->where('user_id', Auth::guard('sanctum')->user()->id)->exists();
-        } else {
-            $isSaved = false;
-        }
-
-        $ad->is_saved = $isSaved;
+        $ad->similar_ads = $this->getSimilarAds($ad);
 
         return $ad;
+    }
+
+    protected function getSimilarAds(Ad $ad)
+    {
+        return Ad::where('city', $ad->city)->where('id', '!=', $ad->id)->with('images')->get();
     }
 }
