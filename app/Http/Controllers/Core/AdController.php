@@ -308,9 +308,10 @@ class AdController extends Controller
             ->HasElevator($request->hasElevator)
             ->HasParking($request->hasParking)
             ->TypeOfWc($request->typeOfWc)
-            ->get();
+            ->with(['images'])
+            ->paginate(20);
 
-        return response()->json($ads->load(['images']), 200);
+        return response()->json($ads, 200);
     }
 
     public function getProvinces(): Collection
