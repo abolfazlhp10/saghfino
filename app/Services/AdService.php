@@ -87,7 +87,7 @@ class AdService
      */
     public function saveAdForUser(Ad $ad, User $user): void
     {
-        $user->savedAds()->attach($ad);
+        $user->savedAds()->syncWithoutDetaching([$ad->id]);
     }
 
     public function unsaveAdForUser(Ad $ad, User $user): void
