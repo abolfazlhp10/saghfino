@@ -196,6 +196,7 @@ class AdService
     {
         return Ad::where('city', $ad->city)
             ->where('id', '!=', $ad->id)
+            ->with(['images'])
             ->limit(6)
             ->get();
     }
