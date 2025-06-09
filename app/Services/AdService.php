@@ -1,11 +1,9 @@
 <?php
-
 namespace App\Services;
 
 use App\Models\Ad;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -174,18 +172,31 @@ class AdService
 
     public function prepareAdForShow(Ad $ad): Ad
     {
-        $ad->load(['user', 'images'])
-        ->loadCount('savedByUsers');
+        $ad->load([
+            'user' => function ($query) {
+                $query->withCount('ads');
+            },
+            'images',
+        ])->loadCount('savedByUsers');
 
-        $ad->is_saved = request()->bearerToken() ? $ad->savedByUsers()->where('user_id', Auth::guard('sanctum')->user()->id)->exists() : false;
+        $ad->is_saved = false;
+
+        if ($user = Auth::guard('sanctum')->user()) {
+
+            $ad->is_saved = $user->savedAds()->where('ad_id', $ad->id)->exists();
+
+        }
 
         $ad->similar_ads = $this->getSimilarAds($ad);
 
         return $ad;
     }
 
-    protected function getSimilarAds(Ad $ad)
+    private function getSimilarAds(Ad $ad): Collection
     {
-        return Ad::where('city', $ad->city)->where('id', '!=', $ad->id)->with('images')->get();
+        return Ad::where('city', $ad->city)
+            ->where('id', '!=', $ad->id)
+            ->limit(6)
+            ->get();
     }
 }

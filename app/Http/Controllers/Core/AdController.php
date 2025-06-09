@@ -6,6 +6,7 @@ use App\Classes\ResponseMessages;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Core\CreateAdRequest;
 use App\Http\Requests\Core\FilterAdsRequest;
+use App\Http\Resources\AdResource;
 use App\Models\Ad;
 use App\Models\City;
 use App\Models\Province;
@@ -129,7 +130,7 @@ class AdController extends Controller
 
         $ad = $this->adService->prepareAdForShow($ad);
 
-        return response()->json($ad, 200);
+        return response()->json(new AdResource($ad), 200);
     }
 
     /**
