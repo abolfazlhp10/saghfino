@@ -3,7 +3,6 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Auth;
 
 class AdResource extends JsonResource
 {
@@ -14,7 +13,6 @@ class AdResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        
 
         return [
             'id'                   => $this->id,
@@ -35,6 +33,7 @@ class AdResource extends JsonResource
             'rent_price'           => $this->rent_price,
             'mortgage_price'       => $this->mortgage_price,
             'status'               => $this->status,
+            'created_at'           => $this->created_at,
 
             'is_saved'             => $this->is_saved,
             'saved_by_users_count' => $this->saved_by_users_count,
