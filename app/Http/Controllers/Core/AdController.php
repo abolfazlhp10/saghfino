@@ -309,6 +309,7 @@ class AdController extends Controller
             ->HasParking($request->hasParking)
             ->TypeOfWc($request->typeOfWc)
             ->with(['images'])
+            ->latest()
             ->paginate(20);
 
         return response()->json($ads, 200);
