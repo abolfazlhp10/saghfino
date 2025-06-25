@@ -33,7 +33,7 @@ class RealEstatesController extends Controller
 
         $agent = $this->realEstateService->getRealEstateAgentById($agent_id);
 
-        if ($agent == null) {
+        if (!$agent) {
             return response()->json(['message' => ResponseMessages::NOT_FOUND]);
         }
 

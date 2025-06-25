@@ -6,9 +6,9 @@ use App\Models\RealEstateRate;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Role;
-use Illuminate\Support\Facades\DB;
 
 class RealEstateService
 {
@@ -21,7 +21,7 @@ class RealEstateService
         return $real_estate_agents;
     }
 
-    public function getRealEstateAgentById($agent_id): User
+    public function getRealEstateAgentById($agent_id): User|bool
     {
 
         $agent = User::where('id', $agent_id)
@@ -29,6 +29,10 @@ class RealEstateService
                 $query->where('name', 'real_estate_agent');
             })
             ->first();
+
+        if (! $agent) {
+            return false;
+        }
 
         return $agent;
     }
@@ -40,11 +44,11 @@ class RealEstateService
 
             return RealEstate::create([
                 'agent_id' => auth()->user()->id,
-                'name'    => $request->name,
-                'tagline' => $request->tagline,
-                'address' => $request->address,
-                'city'    => $request->city,
-                'image'   => $request->hasFile('image') ? $request->file('image')->store('realEstates', 'public') : null,
+                'name'     => $request->name,
+                'tagline'  => $request->tagline,
+                'address'  => $request->address,
+                'city'     => $request->city,
+                'image'    => $request->hasFile('image') ? $request->file('image')->store('realEstates', 'public') : null,
             ]);
         } catch (\Throwable $e) {
             Log::error('error in creating new real estate : ', [$e->getMessage()]);
@@ -63,11 +67,11 @@ class RealEstateService
         }
     }
 
-     public function saveRate(object $request): bool
+    public function saveRate(object $request): bool
     {
-        $userId = auth()->id();
+        $userId       = auth()->id();
         $realEstateId = $request->real_estate_id;
-        $newRate = (int) $request->rate;
+        $newRate      = (int) $request->rate;
 
         DB::beginTransaction();
 
@@ -101,9 +105,9 @@ class RealEstateService
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Failed to save real estate rate', [
-                'user_id' => $userId,
+                'user_id'        => $userId,
                 'real_estate_id' => $realEstateId,
-                'error' => $e->getMessage(),
+                'error'          => $e->getMessage(),
             ]);
 
             return 'false';
