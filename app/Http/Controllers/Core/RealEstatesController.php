@@ -64,7 +64,12 @@ class RealEstatesController extends Controller
             return response()->json(['message' => ResponseMessages::REAL_ESTATE_NOT_FOUND], Response::HTTP_NOT_FOUND);
         }
 
-        return $realEstate->load(['agent']);
+        // Load the agent and count the ads associated with that agent
+        $realEstate = $realEstate->load(['agent' => function ($query) {
+            $query->withCount('ads');
+        }]);
+
+        return $realEstate;
     }
 
     public function rateRealEsate(RateRealEstateRequest $request): JsonResponse
@@ -80,7 +85,7 @@ class RealEstatesController extends Controller
         return response()->json(['message' => ResponseMessages::REAL_ESTATE_RATE_ADDED], Response::HTTP_OK);
     }
 
-    public function updateRealEstateProfile(RealEstateEditRequest $request,RealEstate $realestate,RealesateUpdateAction $realesateUpdateAction): JsonResponse 
+    public function updateRealEstateProfile(RealEstateEditRequest $request, RealEstate $realestate, RealesateUpdateAction $realesateUpdateAction): JsonResponse
     {
         try {
             $updatedRealEstate = $realesateUpdateAction->execute($request, $realestate);
