@@ -28,7 +28,7 @@ class Ad extends Model
         'sell_price',
         'rent_price',
         'mortgage_price',
-        'status'
+        'status',
     ];
 
     public function user()
@@ -88,12 +88,12 @@ class Ad extends Model
 
     public function scopeHasParking($query, $parking)
     {
-        return $parking ? $query->where('parking', $parking) : $query;
+        return ! is_null($parking) ? $query->where('parking', (int) $parking) : $query;
     }
 
     public function scopeHasElevator($query, $hasElevator)
     {
-        return $hasElevator ? $query->where('elevator', $hasElevator) : $query;
+        return ! is_null($hasElevator) ? $query->where('elevator', (int) $hasElevator) : $query;
     }
 
     public function scopeBySellPriceOrder($query, $order_by)
@@ -131,5 +131,5 @@ class Ad extends Model
     protected static function booted()
     {
         static::addGlobalScope(new ActiveAdScope());
-    }    
+    }
 }
