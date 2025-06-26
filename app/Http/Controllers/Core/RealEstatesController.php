@@ -9,7 +9,6 @@ use App\Http\Requests\Core\RateRealEstateRequest;
 use App\Http\Requests\Core\RealEstateEditRequest;
 use App\Models\RealEstate;
 use App\Services\RealEstateService;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -33,7 +32,7 @@ class RealEstatesController extends Controller
 
         $agent = $this->realEstateService->getRealEstateAgentById($agent_id);
 
-        if (!$agent) {
+        if (! $agent) {
             return response()->json(['message' => ResponseMessages::NOT_FOUND]);
         }
 
@@ -58,16 +57,13 @@ class RealEstatesController extends Controller
 
     public function getRealEstateById(int $id)
     {
-        try {
-            $realEstate = RealEstate::findOrFail($id);
-        } catch (ModelNotFoundException $e) {
-            return response()->json(['message' => ResponseMessages::REAL_ESTATE_NOT_FOUND], Response::HTTP_NOT_FOUND);
-        }
-
-        // Load the agent and count the ads associated with that agent
-        $realEstate = $realEstate->load(['agent' => function ($query) {
+        // Attempt to find the real estate, including its agent and count of ads
+        $realEstate = RealEstate::with(['agent' => function ($query) {
             $query->withCount('ads');
-        }]);
+        }])->findOrFail($id);
+
+        // Load the ads of the agent with pagination (12 per page)
+        $realEstate->ads = $realEstate->agent->ads()->paginate(12);
 
         return $realEstate;
     }
