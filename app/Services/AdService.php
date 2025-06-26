@@ -108,7 +108,7 @@ class AdService
 
     public function getMyAds(User $user): Collection
     {
-        return $user->ads()->get();
+        return $user->ads()->with('images')->get();
     }
 
     public function deleteAllUserAds(User $user): bool
