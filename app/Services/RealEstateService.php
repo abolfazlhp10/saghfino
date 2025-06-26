@@ -60,7 +60,7 @@ class RealEstateService
         $query = RealEstate::query();
 
         if ($request->city) {
-            $real_estates = $query->where('city', $request->city)->get();
+            $real_estates = $query->where('city', $request->city)->paginate(12);
             return $real_estates;
         } else {
             return RealEstate::paginate(12);
