@@ -188,7 +188,7 @@ class AdController extends Controller
 
         if (count($savedAds)) {
 
-            return response()->json([$savedAds->load(['images'])], 200);
+            return response()->json($savedAds, 200);
         }
 
         return response()->json(['message' => ResponseMessages::SAVED_ADS_NOT_FOUND], 404);

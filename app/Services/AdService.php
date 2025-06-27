@@ -96,9 +96,9 @@ class AdService
         $user->savedAds()->detach($ad);
     }
 
-    public function getSavedAds(User $user): Collection
+    public function getSavedAds(User $user): LengthAwarePaginator
     {
-        return $user->savedAds()->get();
+        return $user->savedAds()->with(['images'])->paginate(12);
     }
 
     public function deleteAllSavedAds(User $user)
@@ -106,9 +106,9 @@ class AdService
         return $user->savedAds()->detach();
     }
 
-    public function getMyAds(User $user): Collection
+    public function getMyAds(User $user): LengthAwarePaginator
     {
-        return $user->ads()->with('images')->get();
+        return $user->ads()->with(['images'])->paginate(12);
     }
 
     public function deleteAllUserAds(User $user): bool
