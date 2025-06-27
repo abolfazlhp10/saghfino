@@ -48,7 +48,11 @@ class Ad extends Model
 
     public function scopeByCity($query, $city)
     {
-        return $city ? $query->where('city', $city) : $query;
+        if ($city == 'all') {
+            return $query;
+        }
+        
+        return $query->where('city', $city);
     }
 
     public function scopeByRooms($query, $rooms)
