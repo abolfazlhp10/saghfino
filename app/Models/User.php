@@ -1,13 +1,15 @@
 <?php
-
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
+use Morilog\Jalali\Jalalian;
 
 class User extends Authenticatable
 {
@@ -36,8 +38,14 @@ class User extends Authenticatable
         return $this->belongsToMany(Ad::class, 'user_ad', 'user_id', 'ad_id')->withTimestamps();
     }
 
-    public function realEstate(){
+    public function realEstate()
+    {
         return $this->hasOne(RealEstate::class, 'agent_id');
+    }
+
+    public function getCreatedAtAttribute($value)
+    {
+        return Jalalian::fromCarbon(\Carbon\Carbon::parse($value))->format('%Y/%m/%d');
     }
 
 }
