@@ -74,8 +74,10 @@ class AdminController extends Controller
         }
     }
 
-    public function changeAdStatus(Ad $ad): JsonResponse
+    public function changeAdStatus($ad): JsonResponse
     {
+        $ad = Ad::withoutGlobalScopes()->findOrFail($ad);
+
         try {
 
             $newStatus = $ad->status === 1 ? 0 : 1;
