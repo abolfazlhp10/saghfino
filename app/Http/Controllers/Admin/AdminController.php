@@ -30,19 +30,19 @@ class AdminController extends Controller
         return response()->json($counts);
     }
 
-    public function getAllUsers(): Collection
+    public function getAllUsers(): LengthAwarePaginator
     {
-        return User::all();
+        return User::paginate(12);
     }
 
-    public function getAllAgents(): Collection
+    public function getAllAgents(): LengthAwarePaginator
     {
-        return User::role('real_estate_agent')->get();
+        return User::role('real_estate_agent')->paginate(12);
     }
 
-    public function getAllRealEstates(): Collection
+    public function getAllRealEstates(): LengthAwarePaginator
     {
-        return RealEstate::with(['agent'])->get();
+        return RealEstate::with(['agent'])->paginate(12);
     }
 
     public function getAllAds(): LengthAwarePaginator

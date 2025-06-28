@@ -12,7 +12,7 @@ Route::prefix('admin/dashboard')->middleware(['auth:sanctum','isAdmin'])->group(
 
     Route::get('agents',[AdminController::class,'getAllAgents']);
 
-    Route::get('real-estates',[AdminController::class,'getRealEstates']);
+    Route::get('real-estates',[AdminController::class,'getAllRealEstates']);
 
     Route::get('ads',[AdminController::class,'getAllAds']);
 
