@@ -21,7 +21,7 @@ class RealEstateService
         return $real_estate_agents;
     }
 
-    public function getRealEstateAgentById($agent_id): User|bool
+    public function getRealEstateAgentById($agent_id): User | bool
     {
 
         $agent = User::where('id', $agent_id)
@@ -60,7 +60,7 @@ class RealEstateService
         $query = RealEstate::query();
 
         if ($request->city) {
-            $real_estates = $query->where('city', $request->city)->paginate(12);
+            $real_estates = $request->city != 'all' ? $query->where('city', $request->city)->paginate(12) : $query->paginate(12);
             return $real_estates;
         } else {
             return RealEstate::paginate(12);
