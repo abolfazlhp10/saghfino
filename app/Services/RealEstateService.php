@@ -37,12 +37,10 @@ class RealEstateService
         return $agent;
     }
 
-    public function createNewRealEstate($request)
+    public function createOrUpdateRealEstate(Request $request)
     {
-
         try {
-
-            return RealEstate::create([
+            return RealEstate::updateOrCreate(['agent_id' => auth()->user()->id], [
                 'agent_id' => auth()->user()->id,
                 'name'     => $request->name,
                 'tagline'  => $request->tagline,

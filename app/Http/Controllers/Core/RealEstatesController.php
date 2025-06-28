@@ -39,12 +39,12 @@ class RealEstatesController extends Controller
         return response()->json($agent->load(['realEstate']));
     }
 
-    public function save(CreateRealEstateRequest $request)
+    public function save(CreateRealEstateRequest $request): JsonResponse
     {
-        $result = $this->realEstateService->createNewRealEstate($request);
+        $result = $this->realEstateService->createOrUpdateRealEstate($request);
 
         if ($result) {
-            return response()->json(['message' => ResponseMessages::REAL_ESTATE_CREATE_SUCCESS]);
+            return response()->json(['message' => ResponseMessages::REAL_ESTATE_CREATE_SUCCESS, 'data' => $result]);
         } else {
             return response()->json(['message' => ResponseMessages::REAL_ESTATE_CREATE_ERROR]);
         }
