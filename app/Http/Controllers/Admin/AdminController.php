@@ -4,11 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Classes\ResponseMessages;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
 use App\Models\Ad;
 use App\Models\RealEstate;
 use App\Models\User;
 use Exception;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -31,9 +31,17 @@ class AdminController extends Controller
     }
 
     public function getAllUsers(): LengthAwarePaginator
-    {
-        return User::paginate(12);
+    {    
+        $users = User::with('roles')->paginate(12);
+
+        $users->getCollection()->transform(function ($user) {
+            return new UserResource($user);
+        });
+
+        return $users;
     }
+
+
 
     public function getAllAgents(): LengthAwarePaginator
     {

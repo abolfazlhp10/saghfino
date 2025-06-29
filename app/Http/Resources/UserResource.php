@@ -21,6 +21,7 @@ class UserResource extends JsonResource
             'image'       => $this->image,
             'role'        => $this->roles->first()?->name,
             'active_ads'  => $this->ads_count,
+            'created_at'  => $this->created_at
         ];
     }
 }
