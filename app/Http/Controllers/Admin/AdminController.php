@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Classes\ResponseMessages;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AdminLoginRequest;
 use App\Http\Resources\UserResource;
 use App\Models\Ad;
 use App\Models\RealEstate;
 use App\Models\User;
 use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -17,6 +19,17 @@ use Throwable;
 
 class AdminController extends Controller
 {
+    public function login(AdminLoginRequest $request)
+    {
+        if ($request->username == env('ADMIN_USER') and $request->password == env('ADMIN_PASS')) {
+            $user = User::where('phoneNumber', env('ADMIN_PHONENUMBER'))->first();
+            $user->token = $user->createToken('user')->plainTextToken;
+            return $user;
+        } else {
+            return response()->json("message : " .ResponseMessages::ADMIN_NOT_FOUND, 401);
+        }
+    }
+
     public function getCounts(): JsonResponse
     {
         $adsCount = Ad::withoutGlobalScopes()->count();;
@@ -31,7 +44,7 @@ class AdminController extends Controller
     }
 
     public function getAllUsers(): LengthAwarePaginator
-    {    
+    {
         $users = User::with('roles')->paginate(12);
 
         $users->getCollection()->transform(function ($user) {
@@ -93,9 +106,8 @@ class AdminController extends Controller
             $ad->update(['status' => $newStatus]);
 
             return response()->json(['message' => ResponseMessages::ADS_STATUS_UPDATED, 'ad' => $ad->fresh()], 200);
-
         } catch (Throwable $th) {
-            Log::error('admin changed ad status failed : '.$th->getMessage());
+            Log::error('admin changed ad status failed : ' . $th->getMessage());
             return response()->json(['message' => ResponseMessages::ADS_STATUS_ERROR], 500);
         }
     }

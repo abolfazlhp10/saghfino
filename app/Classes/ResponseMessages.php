@@ -32,4 +32,5 @@ class ResponseMessages
     const ADS_STATUS_UPDATED = "وضعیت آگهی با موفقیت تغییر یافت ";
     const ADS_STATUS_ERROR = "حطا در تغییر وضعیت آگهی !";
     const OTP_IS_FALSE = "کد وارد شده اشتباه است";
+    const ADMIN_NOT_FOUND = "نام کاربری یا رمز عبور اشتباه است";
 }

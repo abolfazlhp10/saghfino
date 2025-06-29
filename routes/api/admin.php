@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AdminController;
 use Illuminate\Support\Facades\Route;
 
+Route::post('admin/dashboard/login',[AdminController::class,'login']);
 
 Route::prefix('admin/dashboard')->middleware(['auth:sanctum','isAdmin'])->group(function () {
     
