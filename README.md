@@ -91,7 +91,7 @@
 - Typewriter Effect (افکت تایپ برای UI)
 
 ### ⚙️ بک‌اند:
-- PHP با ساختار **RESTful API**
+- با laravel , با ساختار restful api
 - پیاده‌سازی کامل سیستم احراز هویت، سطح دسترسی، توکن و مدیریت دیتا
 - [مشاهده مستندات Swagger API](https://saghfino.abolfazlhp.ir/docs#)
 🔗 [مشاهده طرح پروژه (ui/ux)](https://www.figma.com/community/file/1332686061667584715/saghfinoo-real-estate-website#)
