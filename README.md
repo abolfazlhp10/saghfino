@@ -1,99 +1,92 @@
-# 🏡 Saghfinoo Project — سقفینو
+# Saghfino (سقفینو)
 
-<h2 align="center">❤ Welcome to the Saghfinoo Repository ❤</h2>
-<h3 align="center">سلام! به مخزن پروژه خدمات ملکی سقفینو خوش آمدید.</h3>
+Back end for Saghfino, a real estate listings website where people can post, search and save property ads for buying, selling and renting in any city in Iran.
 
----
+This repository is the Laravel REST API. The front end is a separate React + TypeScript app.
 
-## 🌍 Online | نسخه  آنلاین
+- Live demo: https://saghfinoo-five.vercel.app (a VPN may be needed to load it)
+- API documentation (Swagger): https://saghfino.abolfazlhp.ir/docs
+- UI design (Figma): https://www.figma.com/community/file/1332686061667584715/saghfinoo-real-estate-website
 
-📌 لینک پروژه آنلاین (Vercel):  
-🔗 [https://saghfinoo-five.vercel.app/](https://saghfinoo-five.vercel.app/)
+## Features
 
-⚠️ **لطفاً با VPN وارد شوید تا پروژه به درستی لود شود.**
+**Sign-in**
+- Phone number login with a one-time code sent by SMS (FarazSMS), with rate limiting on sending and verifying codes
+- Token authentication with Laravel Sanctum
+- Three roles managed with spatie/laravel-permission: user, real estate agent and admin
 
----
+**Ads**
+- Post an ad with images, transaction type (sell, rent, mortgage), property type, prices and city
+- Search with pagination and filters: city, transaction and property type, price range, area, rooms, floor, elevator, parking and title, with sorting by price
+- Similar ads on each ad page
+- Save ads to a favorites list, and manage your own ads (view, delete one or all)
+- Only active ads are listed publicly (global query scope)
 
-## 🔎 معرفی پروژه | Project Overview
+**Real estate agencies**
+- Agents can register an agency with name, address, slogan and logo, and edit its profile
+- Public pages for agencies and agents
+- Users can rate agencies
 
-**Saghfinoo (سقفینو)** یک وب‌سایت کامل خدمات ملکی است که امکان جستجو، ثبت و مدیریت آگهی‌های ملکی را فراهم می‌کند.  
-پروژه با React + TypeScript در فرانت‌اند و PHP در بک‌اند توسعه یافته و ارتباط بین فرانت و بک از طریق **RESTful API** پیاده‌سازی شده است.
+**Admin panel API**
+- Counts of users and ads for the dashboard charts
+- Lists of users, agents, agencies and ads
+- Activate, deactivate or delete ads
 
-📑 مستندات کامل API در Swagger:  
-🔗 [مشاهده مستندات API](https://saghfino.abolfazlhp.ir/docs#)
+## Tech stack
 
-🔗 [مشاهده طرح پروژه (ui/ux)](https://www.figma.com/community/file/1332686061667584715/saghfinoo-real-estate-website#)
+- PHP 8.2, Laravel 11
+- MySQL
+- Laravel Sanctum, spatie/laravel-permission
+- morilog/jalali for Persian (Jalali) dates
+- FarazSMS for OTP messages
+- Swagger (OpenAPI) for API docs
 
-📝 در سقفینو، ثبت آگهی از هر شهر برای تمام کاربران در سه پنل مختلف امکان‌پذیر است:  
-- 🧑‍💼 کاربران عادی  
-- 🏢 املاکی‌ها  
-- 🛠️ مدیران سیستم  
+## Project structure
 
-هر کاربر می‌تواند هنگام ثبت آگهی، شهر مورد نظر خود را از لیست انتخاب کرده و آگهی را بدون محدودیت جغرافیایی منتشر کند.
+```
+app/
+  Http/Controllers/Auth    OTP login and registration
+  Http/Controllers/Core    Ads and real estate agencies
+  Http/Controllers/Admin   Admin panel endpoints
+  Services/                Business logic for ads and agencies
+  Actions/                 Single-purpose actions (e.g. creating a user with a role)
+  Models/Scopes/           Global scope that hides inactive ads
+  SMS/                     FarazSMS client
+routes/api/                auth.php, ads.php, real_estate.php, admin.php
+public/swagger.yaml        API specification
+```
 
+## Running locally
 
----
+Requirements: PHP 8.2+, Composer, MySQL.
 
-## ✨ ویژگی‌های کلیدی | Key Features
+```bash
+git clone https://github.com/abolfazlhp10/saghfino.git
+cd saghfino
+composer install
+cp .env.example .env
+php artisan key:generate
+```
 
-- 🔐 **احراز هویت (OTP Login)** با ارسال کد یک‌بار مصرف به شماره موبایل
-- 🎫 **توکن احراز هویت (JWT)** برای حفظ نشست کاربران
-- 🔍 **جستجوی گلوبال** بر اساس نوع معامله و شهر
-- 📦 **پیجینیشن، فیلترهای پیشرفته** و دسته‌بندی آگهی‌ها
-- 📸 **اسلایدر تصاویر**، زوم اختصاصی و نمایش جزییات هر آگهی
-- ❤️ **ذخیره‌سازی آگهی‌های مورد علاقه**
-- 📞 **ارتباط سریع با ثبت‌کننده آگهی** از طریق تماس یا اطلاعات تماس
-- 🏢 **صفحه اختصاصی برای املاکی‌ها** شامل:
-  - پروفایل املاک
-  - اطلاعات شهر، آدرس، شعار و لوگو
-  - آگهی‌های ثبت شده توسط هر املاک
-- 📊 **پنل مدیریت حرفه‌ای** با:
-  - مشاهده کاربران با پیجینیشن
-  - مدیریت آگهی‌ها (فعال/غیرفعال/حذف)
-  - گزارش‌گیری آماری با نمودار (Recharts)
+Set your database in `.env`, plus these values:
 
----
+```env
+ADMIN_USER=
+ADMIN_PASS=
+ADMIN_PHONENUMBER=
 
-## 👤 پنل‌های کاربری
+FARAZSMS_USERNAME=
+FARAZSMS_PASSWORD=
+FARAZSMS_FROM=
+FARAZSMS_PATTERN_CODE=
+```
 
-### 🧑‍💼 پنل کاربران عادی
-- مدیریت پروفایل، عکس، ویرایش نام و فامیل
-- ثبت آگهی جدید
-- مشاهده، ویرایش و حذف آگهی‌های ثبت‌شده
-- لیست آگهی‌های ذخیره‌شده (با امکان حذف یا مشاهده)
+Then create the tables and seed provinces, cities, roles, the admin user and sample ads:
 
-### 🏢 پنل املاکی‌ها
-- امکانات پنل کاربری + ثبت املاک
-- تنظیم اطلاعات مانند نام املاک، آدرس، شعار، لوگو
-- مدیریت آگهی‌های املاک
+```bash
+php artisan migrate --seed
+php artisan storage:link
+php artisan serve
+```
 
-### 🛠️ پنل مدیریت
-- مشاهده و مدیریت لیست کاربران
-- مدیریت آگهی‌ها و تغییر وضعیت آن‌ها
-- لیست املاک ثبت‌شده
-- داشبورد آماری با نمودار برای مشاهده آمار کل سیستم
-
----
-
-## 🛠️ تکنولوژی‌ها و ابزارهای استفاده‌شده
-
-### 🔧 فرانت‌اند:
-- React + TypeScript  
-- Tailwind CSS  
-- Axios  
-- React Query  
-- React Toastify  
-- Swiper (برای اسلایدرها)  
-- Recharts (برای نمودار آماری)  
-- React Content Loader (برای Skeleton Loading)  
-- React Medium Image Zoom (بزرگنمایی تصاویر)  
-- SweetAlert2 (پیغام‌های تعاملی)  
-- Typewriter Effect (افکت تایپ برای UI)
-
-### ⚙️ بک‌اند:
-- با laravel , با ساختار restful api
-- پیاده‌سازی کامل سیستم احراز هویت، سطح دسترسی، توکن و مدیریت دیتا
-- [مشاهده مستندات Swagger API](https://saghfino.abolfazlhp.ir/docs#)
-🔗 [مشاهده طرح پروژه (ui/ux)](https://www.figma.com/community/file/1332686061667584715/saghfinoo-real-estate-website#)
-
----
+The API is served at `http://localhost:8000/api`, and the docs at `http://localhost:8000/docs`.
